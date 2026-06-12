@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reportajes — Editor</title>
+
+<!-- Tipografías editoriales -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --papel:    #FAF8F4;
+    --papel-2:  #F2EEE6;
+    --tinta:    #16161A;
+    --tinta-60: #5C5C63;
+    --tinta-30: #B7B5AE;
+    --cobalto:  #2D4ECC;
+    --cobalto-d:#22388f;
+    --ambar:    #E8A13A;
+    --linea:    #E4DFD5;
+    --rojo:     #C23B22;
+    --radio:    10px;
+    --sombra:   0 1px 2px rgba(22,22,26,.04), 0 8px 24px rgba(22,22,26,.06);
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  body{
+    font-family:'Inter', system-ui, sans-serif;
+    background:var(--papel);
+    color:var(--tinta);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- Tipografía base ---------- */
+  .display{ font-family:'Fraunces', Georgia, serif; }
+  .eyebrow{
+    font-size:.72rem; font-weight:600; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--tinta-60);
+  }
+
+  button{ font-family:inherit; cursor:pointer; border:none; background:none; }
+
+  .btn{
+    display:inline-flex; align-items:center; gap:.5rem;
+    padding:.62rem 1.1rem; border-radius:var(--radio);
+    font-weight:600; font-size:.92rem; transition:.15s;
+    border:1px solid transparent;
+  }
+  .btn-primario{ background:var(--cobalto); color:#fff; }
+  .btn-primario:hover{ background:var(--cobalto-d); }
+  .btn-fantasma{ background:transparent; color:var(--tinta); border-color:var(--linea); }
+  .btn-fantasma:hover{ background:var(--papel-2); }
+  .btn-peligro{ color:var(--rojo); }
+  .btn-peligro:hover{ background:#f7e9e5; }
+  .btn-sm{ padding:.38rem .7rem; font-size:.82rem; }
+
+  /* ---------- Layout app ---------- */
+  .barra{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:1rem 1.5rem; border-bottom:1px solid var(--linea);
+    background:rgba(250,248,244,.85); backdrop-filter:blur(8px);
+    position:sticky; top:0; z-index:30;
+  }
+  .marca{ display:flex; align-items:center; gap:.65rem; }
+  .marca-punto{
+    width:26px; height:26px; border-radius:7px;
+    background:var(--tinta); position:relative; flex-shrink:0;
+  }
+  .marca-punto::after{
+    content:""; position:absolute; inset:7px 7px auto auto;
+    width:7px; height:7px; border-radius:50%; background:var(--ambar);
+  }
+  .marca b{ font-family:'Fraunces',serif; font-weight:600; font-size:1.08rem; letter-spacing:-.01em; }
+  .marca span{ font-size:.7rem; color:var(--tinta-60); display:block; letter-spacing:.04em; }
+
+  .usuario{ display:flex; align-items:center; gap:.7rem; }
+  .avatar{ width:30px; height:30px; border-radius:50%; background:var(--papel-2); object-fit:cover; }
+  .usuario small{ font-size:.82rem; color:var(--tinta-60); }
+
+  .contenedor{ max-width:880px; margin:0 auto; padding:2.5rem 1.5rem 6rem; }
+
+  /* ---------- Login ---------- */
+  .login-wrap{
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    padding:1.5rem; background:
+      radial-gradient(60% 50% at 20% 10%, rgba(45,78,204,.06), transparent),
+      radial-gradient(50% 40% at 90% 90%, rgba(232,161,58,.08), transparent),
+      var(--papel);
+  }
+  .login-card{
+    max-width:420px; width:100%; text-align:center;
+  }
+  .login-card .marca{ justify-content:center; margin-bottom:2rem; }
+  .login-card h1{
+    font-family:'Fraunces',serif; font-weight:600; font-size:2.5rem;
+    line-height:1.08; letter-spacing:-.02em; margin-bottom:.8rem;
+  }
+  .login-card h1 em{ font-style:italic; color:var(--cobalto); }
+  .login-card p{ color:var(--tinta-60); margin-bottom:2rem; font-size:1.02rem; }
+  .g-btn{
+    display:inline-flex; align-items:center; gap:.7rem; margin:0 auto;
+    padding:.8rem 1.5rem; background:#fff; border:1px solid var(--linea);
+    border-radius:var(--radio); font-weight:600; box-shadow:var(--sombra);
+    transition:.15s;
+  }
+  .g-btn:hover{ border-color:var(--tinta-30); transform:translateY(-1px); }
+
+  /* ---------- Dashboard ---------- */
+  .dash-head{ display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:2rem; gap:1rem; flex-wrap:wrap; }
+  .dash-head h2{ font-family:'Fraunces',serif; font-weight:600; font-size:1.9rem; letter-spacing:-.02em; }
+  .dash-head p{ color:var(--tinta-60); font-size:.95rem; margin-top:.2rem; }
+
+  .lista{ display:flex; flex-direction:column; gap:.8rem; }
+  .tarjeta{
+    display:flex; align-items:center; justify-content:space-between; gap:1rem;
+    padding:1.15rem 1.3rem; background:#fff; border:1px solid var(--linea);
+    border-radius:var(--radio); box-shadow:var(--sombra); transition:.15s;
+  }
+  .tarjeta:hover{ border-color:var(--tinta-30); }
+  .tarjeta-info h3{ font-family:'Fraunces',serif; font-weight:600; font-size:1.18rem; letter-spacing:-.01em; }
+  .tarjeta-meta{ display:flex; align-items:center; gap:.6rem; margin-top:.3rem; font-size:.8rem; color:var(--tinta-60); }
+  .pill{
+    font-size:.68rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+    padding:.18rem .5rem; border-radius:6px;
+  }
+  .pill-borrador{ background:#fbf2e0; color:#a06a16; }
+  .pill-publicado{ background:#e3f0e6; color:#2c7a45; }
+  .tarjeta-acciones{ display:flex; gap:.35rem; flex-shrink:0; }
+
+  .vacio{
+    text-align:center; padding:4rem 1.5rem; border:1px dashed var(--linea);
+    border-radius:var(--radio); color:var(--tinta-60);
+  }
+  .vacio b{ font-family:'Fraunces',serif; color:var(--tinta); display:block; font-size:1.2rem; margin-bottom:.4rem; }
+
+  /* ---------- Editor ---------- */
+  .editor-head{ display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; flex-wrap:wrap; }
+  .titulo-input{
+    flex:1; min-width:220px; font-family:'Fraunces',serif; font-weight:600;
+    font-size:1.9rem; letter-spacing:-.02em; border:none; background:transparent;
+    color:var(--tinta); outline:none; border-bottom:2px solid transparent; padding:.2rem 0;
+  }
+  .titulo-input:focus{ border-bottom-color:var(--cobalto); }
+  .titulo-input::placeholder{ color:var(--tinta-30); }
+
+  .guardado{ font-size:.8rem; color:var(--tinta-60); display:flex; align-items:center; gap:.4rem; }
+  .punto-guardado{ width:7px; height:7px; border-radius:50%; background:#2c7a45; }
+  .punto-guardado.pendiente{ background:var(--ambar); }
+
+  .bloques{ display:flex; flex-direction:column; gap:.4rem; margin-bottom:1.5rem; }
+
+  .bloque{
+    position:relative; padding:1rem 1.1rem; border:1px solid transparent;
+    border-radius:var(--radio); transition:.12s;
+  }
+  .bloque:hover{ background:#fff; border-color:var(--linea); }
+  .bloque-barra{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:.5rem; opacity:0; transition:.12s;
+  }
+  .bloque:hover .bloque-barra{ opacity:1; }
+  .bloque-tipo{ font-size:.68rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--tinta-30); }
+  .bloque-ctrl{ display:flex; gap:.15rem; }
+  .ic-btn{
+    width:26px; height:26px; display:grid; place-items:center; border-radius:6px;
+    color:var(--tinta-60); font-size:.95rem;
+  }
+  .ic-btn:hover{ background:var(--papel-2); color:var(--tinta); }
+  .ic-btn.peligro:hover{ background:#f7e9e5; color:var(--rojo); }
+
+  /* campos editables dentro de bloques */
+  .campo{
+    width:100%; border:none; background:transparent; outline:none;
+    font-family:inherit; color:var(--tinta); resize:none; line-height:1.6;
+  }
+  .campo-titulo{ font-family:'Fraunces',serif; font-weight:600; font-size:1.8rem; letter-spacing:-.02em; }
+  .campo-subtitulo{ font-family:'Fraunces',serif; font-weight:600; font-size:1.3rem; }
+  .campo-parrafo{ font-size:1.06rem; }
+  .campo-cita{
+    font-family:'Fraunces',serif; font-style:italic; font-size:1.4rem; line-height:1.4;
+    padding-left:1rem; border-left:3px solid var(--ambar);
+  }
+  .campo-url{ font-size:.9rem; color:var(--cobalto); border:1px solid var(--linea); padding:.5rem .7rem; border-radius:8px; background:#fff; }
+  .img-prev{ width:100%; border-radius:8px; margin-top:.6rem; display:block; }
+  .img-pie{ font-size:.82rem; color:var(--tinta-60); margin-top:.4rem; font-style:italic; }
+  .separador-vis{ height:1px; background:var(--linea); margin:.4rem 0; }
+  .separador-vis.punto{ background:none; text-align:center; color:var(--tinta-30); letter-spacing:.6em; height:auto; }
+
+  /* menú agregar bloque */
+  .agregar{ position:relative; }
+  .menu-bloques{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:.5rem;
+    padding:.8rem; background:#fff; border:1px solid var(--linea);
+    border-radius:var(--radio); box-shadow:var(--sombra); margin-top:.6rem;
+  }
+  .menu-bloques button{
+    display:flex; flex-direction:column; align-items:center; gap:.3rem;
+    padding:.8rem .4rem; border-radius:8px; font-size:.8rem; color:var(--tinta-60); font-weight:500;
+  }
+  .menu-bloques button:hover{ background:var(--papel-2); color:var(--tinta); }
+  .menu-bloques .ic{ font-size:1.2rem; }
+
+  .barra-fija{
+    position:fixed; left:0; right:0; bottom:0; z-index:20;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:.9rem 1.5rem; background:rgba(250,248,244,.92);
+    backdrop-filter:blur(10px); border-top:1px solid var(--linea);
+  }
+  .barra-fija .max{ max-width:880px; margin:0 auto; width:100%; display:flex; align-items:center; justify-content:space-between; }
+
+  .toast{
+    position:fixed; bottom:5rem; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--tinta); color:#fff; padding:.7rem 1.2rem; border-radius:99px;
+    font-size:.88rem; font-weight:500; opacity:0; pointer-events:none; transition:.25s; z-index:50;
+  }
+  .toast.ver{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  .oculto{ display:none !important; }
+
+  @media (max-width:560px){
+    .menu-bloques{ grid-template-columns:repeat(2,1fr); }
+    .tarjeta{ flex-direction:column; align-items:flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ PANTALLA LOGIN ============ -->
+<div id="vista-login" class="login-wrap">
+  <div class="login-card">
+    <div class="marca">
+      <div class="marca-punto"></div>
+      <div style="text-align:left"><b>Reportajes</b><span>Periodismo interactivo</span></div>
+    </div>
+    <h1 class="display">Tu historia,<br><em>en movimiento.</em></h1>
+    <p>Crea reportajes interactivos con scroll animado, gráficos y audio. Inicia sesión para empezar.</p>
+    <button id="btn-login" class="g-btn">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84C6.71 7.3 9.14 5.38 12 5.38z"/></svg>
+      Continuar con Google
+    </button>
+    <p id="login-error" style="color:var(--rojo); font-size:.85rem; margin-top:1rem;" class="oculto"></p>
+  </div>
+</div>
+
+<!-- ============ APP (dashboard + editor) ============ -->
+<div id="vista-app" class="oculto">
+  <header class="barra">
+    <div class="marca">
+      <div class="marca-punto"></div>
+      <div><b>Reportajes</b><span>Periodismo interactivo</span></div>
+    </div>
+    <div class="usuario">
+      <small id="u-email"></small>
+      <img id="u-avatar" class="avatar" alt="" />
+      <button id="btn-logout" class="btn btn-fantasma btn-sm">Salir</button>
+    </div>
+  </header>
+
+  <!-- DASHBOARD -->
+  <main id="vista-dashboard" class="contenedor">
+    <div class="dash-head">
+      <div>
+        <h2>Mis reportajes</h2>
+        <p>Cada estudiante ve solo sus propios proyectos.</p>
+      </div>
+      <button id="btn-nuevo" class="btn btn-primario">＋ Nuevo reportaje</button>
+    </div>
+    <div id="lista-reportajes" class="lista"></div>
+  </main>
+
+  <!-- EDITOR -->
+  <main id="vista-editor" class="contenedor oculto">
+    <div class="editor-head">
+      <button id="btn-volver" class="btn btn-fantasma btn-sm">← Mis reportajes</button>
+      <input id="titulo-reportaje" class="titulo-input" placeholder="Título del reportaje…" />
+      <span class="guardado"><span id="punto-guardado" class="punto-guardado"></span><span id="texto-guardado">Guardado</span></span>
+    </div>
+
+    <div id="bloques" class="bloques"></div>
+
+    <div class="agregar">
+      <button id="btn-agregar" class="btn btn-fantasma">＋ Agregar bloque</button>
+      <div id="menu-bloques" class="menu-bloques oculto">
+        <button data-tipo="titulo"><span class="ic">𝐇</span>Título</button>
+        <button data-tipo="subtitulo"><span class="ic">𝐡</span>Subtítulo</button>
+        <button data-tipo="parrafo"><span class="ic">¶</span>Párrafo</button>
+        <button data-tipo="imagen"><span class="ic">🖼</span>Imagen</button>
+        <button data-tipo="cita"><span class="ic">❝</span>Cita</button>
+        <button data-tipo="separador"><span class="ic">⎯</span>Separador</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- barra inferior del editor -->
+  <div id="barra-editor" class="barra-fija oculto">
+    <div class="max">
+      <button id="btn-eliminar-rep" class="btn btn-peligro btn-sm">🗑 Eliminar reportaje</button>
+      <div style="display:flex; gap:.6rem; align-items:center;">
+        <span style="font-size:.82rem; color:var(--tinta-60);" id="contador-bloques"></span>
+        <button id="btn-guardar" class="btn btn-primario btn-sm">Guardar ahora</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<!-- ============================================================
+     LÓGICA — Firebase (Auth + Firestore)
+     ============================================================ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore, collection, addDoc, getDoc, doc, updateDoc, deleteDoc,
+  query, where, orderBy, getDocs, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* ====== 1) TU CONFIGURACIÓN DE FIREBASE ======
+   (leída de tus capturas; el storageBucket lo confirmamos en la Semana 2) */
+const firebaseConfig = {
+  apiKey: "AIzaSyBr5OcwH9jKdoBVr6Dp_hJto5oNHEbJGtI",
+  authDomain: "ludo-preguntas.firebaseapp.com",
+  databaseURL: "https://ludo-preguntas-default-rtdb.firebaseio.com",
+  projectId: "ludo-preguntas",
+  storageBucket: "ludo-preguntas.appspot.com",
+  messagingSenderId: "154849132864",
+  appId: "1:154849132864:web:93146bf6ad58833a58faa5"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+const proveedor = new GoogleAuthProvider();
+
+/* ====== 2) ESTADO ====== */
+let usuario = null;
+let reportajeActual = null;   // { id, titulo, bloques: [] }
+let timerGuardado = null;
+let cambiosPendientes = false;
+
+/* ====== 3) HELPERS DE UI ====== */
+const $ = id => document.getElementById(id);
+const mostrar = (el,si=true) => el.classList.toggle('oculto', !si);
+
+function toast(msg){
+  const t = $('toast'); t.textContent = msg; t.classList.add('ver');
+  setTimeout(()=>t.classList.remove('ver'), 2200);
+}
+
+function fecha(ts){
+  if(!ts) return 'Sin guardar';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleDateString('es-CL', {day:'numeric', month:'short', year:'numeric'});
+}
+
+/* ====== 4) AUTENTICACIÓN ====== */
+$('btn-login').addEventListener('click', async () => {
+  try { await signInWithPopup(auth, proveedor); }
+  catch(e){
+    const err = $('login-error');
+    err.textContent = 'No se pudo iniciar sesión: ' + e.code;
+    mostrar(err, true);
+    console.error(e);
+  }
+});
+
+$('btn-logout').addEventListener('click', () => signOut(auth));
+
+onAuthStateChanged(auth, async (u) => {
+  usuario = u;
+  if(u){
+    mostrar($('vista-login'), false);
+    mostrar($('vista-app'), true);
+    $('u-email').textContent  = u.email;
+    $('u-avatar').src = u.photoURL || '';
+    irADashboard();
+  } else {
+    mostrar($('vista-login'), true);
+    mostrar($('vista-app'), false);
+  }
+});
+
+/* ====== 5) DASHBOARD: listar reportajes del usuario ====== */
+async function irADashboard(){
+  mostrar($('vista-editor'), false);
+  mostrar($('barra-editor'), false);
+  mostrar($('vista-dashboard'), true);
+  await cargarReportajes();
+}
+
+async function cargarReportajes(){
+  const cont = $('lista-reportajes');
+  cont.innerHTML = '<p style="color:var(--tinta-60)">Cargando…</p>';
+  try{
+    const q = query(
+      collection(db, 'reportajes'),
+      where('ownerUid', '==', usuario.uid),
+      orderBy('updatedAt', 'desc')
+    );
+    const snap = await getDocs(q);
+    if(snap.empty){
+      cont.innerHTML = `<div class="vacio"><b>Aún no tienes reportajes</b>
+        Crea el primero con el botón “Nuevo reportaje”.</div>`;
+      return;
+    }
+    cont.innerHTML = '';
+    snap.forEach(d => {
+      const r = d.data();
+      const nb = (r.bloques||[]).length;
+      const div = document.createElement('div');
+      div.className = 'tarjeta';
+      div.innerHTML = `
+        <div class="tarjeta-info">
+          <h3>${escapar(r.titulo) || 'Sin título'}</h3>
+          <div class="tarjeta-meta">
+            <span class="pill ${r.publicado ? 'pill-publicado':'pill-borrador'}">
+              ${r.publicado ? 'Publicado':'Borrador'}</span>
+            <span>${nb} bloque${nb===1?'':'s'}</span>
+            <span>· Editado ${fecha(r.updatedAt)}</span>
+          </div>
+        </div>
+        <div class="tarjeta-acciones">
+          <button class="btn btn-fantasma btn-sm" data-abrir="${d.id}">Editar</button>
+        </div>`;
+      cont.appendChild(div);
+    });
+    cont.querySelectorAll('[data-abrir]').forEach(b =>
+      b.addEventListener('click', () => abrirReportaje(b.dataset.abrir)));
+  }catch(e){
+    cont.innerHTML = `<div class="vacio"><b>No se pudo cargar</b>
+      ${e.code === 'failed-precondition'
+        ? 'Falta crear un índice en Firestore. Revisa la consola del navegador: aparece un enlace para crearlo con un clic.'
+        : escapar(e.message)}</div>`;
+    console.error(e);
+  }
+}
+
+/* ====== 6) CREAR / ABRIR / GUARDAR ====== */
+$('btn-nuevo').addEventListener('click', async () => {
+  try{
+    const ref = await addDoc(collection(db,'reportajes'), {
+      ownerUid: usuario.uid,
+      ownerEmail: usuario.email,
+      titulo: '',
+      bloques: [],
+      publicado: false,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    abrirReportaje(ref.id);
+  }catch(e){ toast('Error al crear: ' + e.code); console.error(e); }
+});
+
+async function abrirReportaje(id){
+  const snap = await getDoc(doc(db,'reportajes',id));
+  if(!snap.exists()){ toast('Reportaje no encontrado'); return; }
+  const d = snap.data();
+  reportajeActual = { id, titulo: d.titulo||'', bloques: d.bloques||[] };
+  $('titulo-reportaje').value = reportajeActual.titulo;
+  renderBloques();
+  mostrar($('vista-dashboard'), false);
+  mostrar($('vista-editor'), true);
+  mostrar($('barra-editor'), true);
+  marcarGuardado(true);
+}
+
+$('btn-volver').addEventListener('click', async () => {
+  if(cambiosPendientes) await guardar();
+  irADashboard();
+});
+
+async function guardar(){
+  if(!reportajeActual) return;
+  reportajeActual.titulo = $('titulo-reportaje').value;
+  try{
+    await updateDoc(doc(db,'reportajes',reportajeActual.id), {
+      titulo: reportajeActual.titulo,
+      bloques: reportajeActual.bloques,
+      updatedAt: serverTimestamp()
+    });
+    marcarGuardado(true);
+  }catch(e){ toast('Error al guardar: ' + e.code); console.error(e); }
+}
+
+$('btn-guardar').addEventListener('click', () => { guardar(); toast('Guardado'); });
+
+function programarGuardado(){
+  marcarGuardado(false);
+  clearTimeout(timerGuardado);
+  timerGuardado = setTimeout(guardar, 1200);  // autoguardado tras 1.2s sin escribir
+}
+
+function marcarGuardado(ok){
+  cambiosPendientes = !ok;
+  $('punto-guardado').classList.toggle('pendiente', !ok);
+  $('texto-guardado').textContent = ok ? 'Guardado' : 'Guardando…';
+}
+
+$('titulo-reportaje').addEventListener('input', programarGuardado);
+
+/* ====== 7) ELIMINAR ====== */
+$('btn-eliminar-rep').addEventListener('click', async () => {
+  if(!confirm('¿Eliminar este reportaje? No se puede deshacer.')) return;
+  await deleteDoc(doc(db,'reportajes',reportajeActual.id));
+  toast('Reportaje eliminado');
+  irADashboard();
+});
+
+/* ====== 8) BLOQUES ====== */
+const PLANTILLAS = {
+  titulo:    { texto:'' },
+  subtitulo: { texto:'' },
+  parrafo:   { texto:'' },
+  cita:      { texto:'' },
+  imagen:    { url:'', pie:'' },
+  separador: { estilo:'linea' }
+};
+const NOMBRES = { titulo:'Título', subtitulo:'Subtítulo', parrafo:'Párrafo', cita:'Cita', imagen:'Imagen', separador:'Separador' };
+
+function uid(){ return Math.random().toString(36).slice(2,9); }
+
+$('btn-agregar').addEventListener('click', () => mostrar($('menu-bloques'), $('menu-bloques').classList.contains('oculto')));
+document.querySelectorAll('#menu-bloques button').forEach(b =>
+  b.addEventListener('click', () => { agregarBloque(b.dataset.tipo); mostrar($('menu-bloques'), false); }));
+
+function agregarBloque(tipo){
+  reportajeActual.bloques.push({ id:uid(), tipo, ...structuredClone(PLANTILLAS[tipo]) });
+  renderBloques(); programarGuardado();
+}
+
+function renderBloques(){
+  const cont = $('bloques');
+  cont.innerHTML = '';
+  reportajeActual.bloques.forEach((b, i) => cont.appendChild(crearBloque(b, i)));
+  $('contador-bloques').textContent =
+    reportajeActual.bloques.length + ' bloque' + (reportajeActual.bloques.length===1?'':'s');
+}
+
+function crearBloque(b, i){
+  const wrap = document.createElement('div');
+  wrap.className = 'bloque';
+
+  const barra = document.createElement('div');
+  barra.className = 'bloque-barra';
+  barra.innerHTML = `<span class="bloque-tipo">${NOMBRES[b.tipo]}</span>
+    <div class="bloque-ctrl">
+      <button class="ic-btn" data-sube title="Subir">↑</button>
+      <button class="ic-btn" data-baja title="Bajar">↓</button>
+      <button class="ic-btn peligro" data-borra title="Eliminar">✕</button>
+    </div>`;
+  wrap.appendChild(barra);
+
+  let cuerpo;
+  if(b.tipo === 'separador'){
+    cuerpo = document.createElement('div');
+    cuerpo.className = 'separador-vis';
+  } else if(b.tipo === 'imagen'){
+    cuerpo = document.createElement('div');
+    const inUrl = campo('input','campo campo-url', b.url, 'Pega la URL de una imagen…');
+    inUrl.addEventListener('input', e => { b.url = e.target.value; refrescarImg(); programarGuardado(); });
+    const prev = document.createElement('img'); prev.className='img-prev';
+    const inPie = campo('input','campo img-pie', b.pie, 'Pie de foto (opcional)');
+    inPie.addEventListener('input', e => { b.pie = e.target.value; programarGuardado(); });
+    function refrescarImg(){ prev.src = b.url; mostrar(prev, !!b.url); }
+    cuerpo.append(inUrl, prev, inPie); refrescarImg();
+  } else {
+    const clase = { titulo:'campo-titulo', subtitulo:'campo-subtitulo', parrafo:'campo-parrafo', cita:'campo-cita' }[b.tipo];
+    const ph = { titulo:'Escribe el título…', subtitulo:'Escribe el subtítulo…', parrafo:'Escribe el párrafo…', cita:'Escribe la cita…' }[b.tipo];
+    cuerpo = campo('textarea', 'campo '+clase, b.texto, ph);
+    autoAlto(cuerpo);
+    cuerpo.addEventListener('input', e => { b.texto = e.target.value; autoAlto(cuerpo); programarGuardado(); });
+  }
+  wrap.appendChild(cuerpo);
+
+  barra.querySelector('[data-sube]').addEventListener('click', () => mover(i,-1));
+  barra.querySelector('[data-baja]').addEventListener('click', () => mover(i, 1));
+  barra.querySelector('[data-borra]').addEventListener('click', () => {
+    reportajeActual.bloques.splice(i,1); renderBloques(); programarGuardado();
+  });
+  return wrap;
+}
+
+function campo(tag, clase, valor, ph){
+  const el = document.createElement(tag);
+  el.className = clase; el.placeholder = ph;
+  if(tag==='textarea') el.value = valor||''; else el.value = valor||'';
+  return el;
+}
+function autoAlto(t){ t.style.height='auto'; t.style.height = t.scrollHeight+'px'; }
+
+function mover(i, dir){
+  const j = i + dir;
+  if(j<0 || j>=reportajeActual.bloques.length) return;
+  const a = reportajeActual.bloques;
+  [a[i], a[j]] = [a[j], a[i]];
+  renderBloques(); programarGuardado();
+}
+
+function escapar(s){ return (s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+/* guardar al cerrar la pestaña si hay cambios */
+window.addEventListener('beforeunload', e => {
+  if(cambiosPendientes){ e.preventDefault(); e.returnValue=''; }
+});
+</script>
+</body>
+</html>
