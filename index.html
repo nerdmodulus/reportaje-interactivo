@@ -42,7 +42,7 @@
     text-transform:uppercase; color:var(--tinta-60);
   }
 
-  button{ font-family:inherit; cursor:pointer; border:none; background:none; }
+  button, select{ font-family:inherit; cursor:pointer; border:none; background:none; outline:none;}
 
   .btn{
     display:inline-flex; align-items:center; gap:.5rem;
@@ -210,7 +210,10 @@
     padding:.9rem 1.5rem; background:rgba(250,248,244,.92);
     backdrop-filter:blur(10px); border-top:1px solid var(--linea);
   }
-  .barra-fija .max{ max-width:880px; margin:0 auto; width:100%; display:flex; align-items:center; justify-content:space-between; }
+  .barra-fija .max{ max-width:880px; margin:0 auto; width:100%; display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;}
+  
+  .controles-derecha{ display:flex; gap:.6rem; align-items:center; flex-wrap:wrap; }
+  .select-estilo{ border:1px solid var(--linea); padding:.38rem .5rem; border-radius:6px; background:#fff; font-size:.82rem; font-weight:500; color:var(--tinta); }
 
   .toast{
     position:fixed; bottom:5rem; left:50%; transform:translateX(-50%) translateY(20px);
@@ -295,8 +298,15 @@
 
   <div id="barra-editor" class="barra-fija oculto">
     <div class="max">
-      <button id="btn-eliminar-rep" class="btn btn-peligro btn-sm">🗑 Eliminar reportaje</button>
-      <div style="display:flex; gap:.6rem; align-items:center;">
+      <button id="btn-eliminar-rep" class="btn btn-peligro btn-sm">🗑 Eliminar</button>
+      <div class="controles-derecha">
+        <select id="select-plantilla" class="select-estilo">
+          <option value="editorial">✨ Editorial Cálido</option>
+          <option value="moderno">📱 Minimal Moderno</option>
+          <option value="oscuro">🌑 Nocturno Oscuro</option>
+        </select>
+        <button id="btn-publicar" class="btn btn-fantasma btn-sm">📦 Borrador</button>
+        <button id="btn-preview" class="btn btn-fantasma btn-sm">👁 Ver Preview</button>
         <span style="font-size:.82rem; color:var(--tinta-60);" id="contador-bloques"></span>
         <button id="btn-guardar" class="btn btn-primario btn-sm">Guardar ahora</button>
       </div>
@@ -334,7 +344,7 @@ const proveedor = new GoogleAuthProvider();
 
 /* ====== 2) ESTADO ====== */
 let usuario = null;
-let reportajeActual = null;   // { id, titulo, bloques: [] }
+let reportajeActual = null;   // { id, titulo, bloques: [], publicado: false, plantilla: 'editorial' }
 let timerGuardado = null;
 let cambiosPendientes = false;
 
@@ -444,6 +454,7 @@ $('btn-nuevo').addEventListener('click', async () => {
       titulo: '',
       bloques: [],
       publicado: false,
+      plantilla: 'editorial',
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     });
@@ -455,8 +466,16 @@ async function abrirReportaje(id){
   const snap = await getDoc(doc(db,'reportajes',id));
   if(!snap.exists()){ toast('Reportaje no encontrado'); return; }
   const d = snap.data();
-  reportajeActual = { id, titulo: d.titulo||'', bloques: d.bloques||[] };
+  reportajeActual = { 
+    id, 
+    titulo: d.titulo||'', 
+    bloques: d.bloques||[], 
+    publicado: d.publicado||false, 
+    plantilla: d.plantilla||'editorial' 
+  };
   $('titulo-reportaje').value = reportajeActual.titulo;
+  $('select-plantilla').value = reportajeActual.plantilla;
+  refrescarEstadoPublicacion();
   renderBloques();
   mostrar($('vista-dashboard'), false);
   mostrar($('vista-editor'), true);
@@ -476,6 +495,8 @@ async function guardar(){
     await updateDoc(doc(db,'reportajes',reportajeActual.id), {
       titulo: reportajeActual.titulo,
       bloques: reportajeActual.bloques,
+      publicado: reportajeActual.publicado,
+      plantilla: reportajeActual.plantilla,
       updatedAt: serverTimestamp()
     });
     marcarGuardado(true);
@@ -487,7 +508,7 @@ $('btn-guardar').addEventListener('click', () => { guardar(); toast('Guardado');
 function programarGuardado(){
   marcarGuardado(false);
   clearTimeout(timerGuardado);
-  timerGuardado = setTimeout(guardar, 1200);  // autoguardado tras 1.2s sin escribir
+  timerGuardado = setTimeout(guardar, 1200);
 }
 
 function marcarGuardado(ok){
@@ -497,6 +518,30 @@ function marcarGuardado(ok){
 }
 
 $('titulo-reportaje').addEventListener('input', programarGuardado);
+
+/* Lógica Controles Semana 3 */
+$('select-plantilla').addEventListener('change', e => {
+  reportajeActual.plantilla = e.target.value;
+  programarGuardado();
+});
+
+$('btn-publicar').addEventListener('click', () => {
+  reportajeActual.publicado = !reportajeActual.publicado;
+  refrescarEstadoPublicacion();
+  programarGuardado();
+  toast(reportajeActual.publicado ? '¡Reportaje Publicado!' : 'Cambiado a Borrador');
+});
+
+function refrescarEstadoPublicacion() {
+  const pub = reportajeActual.publicado;
+  $('btn-publicar').textContent = pub ? '🚀 Publicado' : '📦 Borrador';
+  $('btn-publicar').classList.toggle('btn-primario', pub);
+}
+
+$('btn-preview').addEventListener('click', () => {
+  if(reportajeActual) window.open(`reportaje.html?id=${reportajeActual.id}`, '_blank');
+});
+
 
 /* ====== 7) ELIMINAR ====== */
 $('btn-eliminar-rep').addEventListener('click', async () => {
