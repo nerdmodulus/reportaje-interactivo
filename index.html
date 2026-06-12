@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Reportajes — Editor</title>
 
-<!-- Tipografías editoriales -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -230,7 +229,6 @@
 </head>
 <body>
 
-<!-- ============ PANTALLA LOGIN ============ -->
 <div id="vista-login" class="login-wrap">
   <div class="login-card">
     <div class="marca">
@@ -247,7 +245,6 @@
   </div>
 </div>
 
-<!-- ============ APP (dashboard + editor) ============ -->
 <div id="vista-app" class="oculto">
   <header class="barra">
     <div class="marca">
@@ -261,7 +258,6 @@
     </div>
   </header>
 
-  <!-- DASHBOARD -->
   <main id="vista-dashboard" class="contenedor">
     <div class="dash-head">
       <div>
@@ -273,7 +269,6 @@
     <div id="lista-reportajes" class="lista"></div>
   </main>
 
-  <!-- EDITOR -->
   <main id="vista-editor" class="contenedor oculto">
     <div class="editor-head">
       <button id="btn-volver" class="btn btn-fantasma btn-sm">← Mis reportajes</button>
@@ -292,11 +287,12 @@
         <button data-tipo="imagen"><span class="ic">🖼</span>Imagen</button>
         <button data-tipo="cita"><span class="ic">❝</span>Cita</button>
         <button data-tipo="separador"><span class="ic">⎯</span>Separador</button>
+        <button data-tipo="audio"><span class="ic">🎵</span>Audio</button>
+        <button data-tipo="grafico"><span class="ic">📊</span>Gráfico</button>
       </div>
     </div>
   </main>
 
-  <!-- barra inferior del editor -->
   <div id="barra-editor" class="barra-fija oculto">
     <div class="max">
       <button id="btn-eliminar-rep" class="btn btn-peligro btn-sm">🗑 Eliminar reportaje</button>
@@ -310,9 +306,6 @@
 
 <div id="toast" class="toast"></div>
 
-<!-- ============================================================
-     LÓGICA — Firebase (Auth + Firestore)
-     ============================================================ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
@@ -323,8 +316,7 @@ import {
   query, where, orderBy, getDocs, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* ====== 1) TU CONFIGURACIÓN DE FIREBASE ======
-   (leída de tus capturas; el storageBucket lo confirmamos en la Semana 2) */
+/* ====== 1) TU CONFIGURACIÓN DE FIREBASE ====== */
 const firebaseConfig = {
   apiKey: "AIzaSyBr5OcwH9jKdoBVr6Dp_hJto5oNHEbJGtI",
   authDomain: "ludo-preguntas.firebaseapp.com",
@@ -521,9 +513,15 @@ const PLANTILLAS = {
   parrafo:   { texto:'' },
   cita:      { texto:'' },
   imagen:    { url:'', pie:'' },
-  separador: { estilo:'linea' }
+  separador: { estilo:'linea' },
+  audio:     { url:'', pie:'' },
+  grafico:   { embed:'', pie:'' }
 };
-const NOMBRES = { titulo:'Título', subtitulo:'Subtítulo', parrafo:'Párrafo', cita:'Cita', imagen:'Imagen', separador:'Separador' };
+const NOMBRES = { 
+  titulo:'Título', subtitulo:'Subtítulo', parrafo:'Párrafo', 
+  cita:'Cita', imagen:'Imagen', separador:'Separador',
+  audio:'Audio', grafico:'Gráfico' 
+};
 
 function uid(){ return Math.random().toString(36).slice(2,9); }
 
@@ -569,8 +567,30 @@ function crearBloque(b, i){
     const prev = document.createElement('img'); prev.className='img-prev';
     const inPie = campo('input','campo img-pie', b.pie, 'Pie de foto (opcional)');
     inPie.addEventListener('input', e => { b.pie = e.target.value; programarGuardado(); });
-    function refrescarImg(){ prev.src = b.url; mostrar(prev, !!b.url); }
+    function refrescarImg(){ prev.src = b.url || ''; mostrar(prev, !!b.url); }
     cuerpo.append(inUrl, prev, inPie); refrescarImg();
+  } else if(b.tipo === 'audio'){
+    cuerpo = document.createElement('div');
+    const inUrl = campo('input','campo campo-url', b.url, 'Pega la URL de un archivo de audio (.mp3)…');
+    inUrl.addEventListener('input', e => { b.url = e.target.value; refrescarAudio(); programarGuardado(); });
+    const prev = document.createElement('audio'); prev.controls = true; prev.style.width = '100%'; prev.style.marginTop = '.6rem';
+    const inPie = campo('input','campo img-pie', b.pie, 'Descripción del audio (opcional)');
+    inPie.addEventListener('input', e => { b.pie = e.target.value; programarGuardado(); });
+    function refrescarAudio(){ prev.src = b.url || ''; mostrar(prev, !!b.url); }
+    cuerpo.append(inUrl, prev, inPie); refrescarAudio();
+  } else if(b.tipo === 'grafico'){
+    cuerpo = document.createElement('div');
+    const inEmbed = campo('textarea', 'campo campo-url', b.embed, 'Pega el código iframe de Datawrapper, Flourish, Infogram…');
+    autoAlto(inEmbed);
+    inEmbed.addEventListener('input', e => { b.embed = e.target.value; autoAlto(inEmbed); refrescarGraf(); programarGuardado(); });
+    const prev = document.createElement('div'); 
+    prev.style.cssText = "margin-top:.6rem; padding:1rem; background:var(--papel-2); border-radius:8px; overflow:hidden;";
+    const inPie = campo('input','campo img-pie', b.pie, 'Fuente o pie del gráfico (opcional)');
+    inPie.addEventListener('input', e => { b.pie = e.target.value; programarGuardado(); });
+    function refrescarGraf(){ 
+      prev.innerHTML = b.embed || '<div style="text-align:center; color:var(--tinta-60); font-size:.85rem;">Vista previa del gráfico (iframe)</div>'; 
+    }
+    cuerpo.append(inEmbed, prev, inPie); refrescarGraf();
   } else {
     const clase = { titulo:'campo-titulo', subtitulo:'campo-subtitulo', parrafo:'campo-parrafo', cita:'campo-cita' }[b.tipo];
     const ph = { titulo:'Escribe el título…', subtitulo:'Escribe el subtítulo…', parrafo:'Escribe el párrafo…', cita:'Escribe la cita…' }[b.tipo];
@@ -591,7 +611,7 @@ function crearBloque(b, i){
 function campo(tag, clase, valor, ph){
   const el = document.createElement(tag);
   el.className = clase; el.placeholder = ph;
-  if(tag==='textarea') el.value = valor||''; else el.value = valor||'';
+  el.value = valor||'';
   return el;
 }
 function autoAlto(t){ t.style.height='auto'; t.style.height = t.scrollHeight+'px'; }
