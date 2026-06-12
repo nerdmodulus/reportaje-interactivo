@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cargando historia...</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  /* Variables Estilo Base */
+  :root {
+    --papel: #FAF8F4;
+    --tinta: #16161A;
+    --linea: #E4DFD5;
+    --tinta-60: #5C5C63;
+    --max-w: 720px;
+  }
+
+  /* --- 1) CONFIGURACIÓN DE PLANTILLAS VISUALES --- */
+  body.tpl-editorial {
+    background-color: #FAF8F4;
+    color: #16161A;
+    font-family: 'Fraunces', Georgia, serif;
+  }
+  body.tpl-editorial .p-text { font-family: 'Inter', sans-serif; font-size: 1.12rem; line-height: 1.7; color: #222225; }
+
+  body.tpl-moderno {
+    background-color: #FFFFFF;
+    color: #111111;
+    font-family: 'Inter', system-ui, sans-serif;
+    --max-w: 760px;
+  }
+  body.tpl-moderno h1 { font-weight: 700; letter-spacing: -0.03em; }
+  body.tpl-moderno .p-text { font-size: 1.08rem; line-height: 1.65; color: #333; }
+
+  body.tpl-oscuro {
+    background-color: #0F0F11;
+    color: #F5F5F7;
+    --linea: #2A2A32;
+    --tinta-60: #A1A1AA;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  body.tpl-oscuro h1, body.tpl-oscuro h2, body.tpl-oscuro .cita-vis { font-family: 'Fraunces', serif; }
+  body.tpl-oscuro .p-text { font-size: 1.1rem; line-height: 1.7; color: #E4E4E7; }
+
+  /* --- Layout y Estructura del artículo --- */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { min-height: 100vh; padding-bottom: 8rem; -webkit-font-smoothing: antialiased; transition: background-color 0.4s, color 0.4s; }
+  
+  .articulo { max-width: var(--max-w); margin: 0 auto; padding: 4rem 1.5rem; }
+  
+  /* --- Elementos Renderizados --- */
+  h1 { font-size: 3rem; line-height: 1.1; margin-bottom: 1.5rem; letter-spacing: -0.02em; }
+  h2 { font-size: 1.8rem; margin-top: 2.5rem; margin-bottom: 1rem; line-height: 1.2; }
+  p { margin-bottom: 1.5rem; }
+  
+  .cita-vis {
+    font-family: 'Fraunces', serif; font-style: italic; font-size: 1.5rem; line-height: 1.4;
+    padding-left: 1.5rem; border-left: 4px solid #E8A13A; margin: 2.5rem 0; color: inherit;
+  }
+  
+  .img-wrap, .audio-wrap, .grafico-wrap { margin: 2.5rem 0; width: 100%; }
+  img { width: 100%; border-radius: 8px; display: block; }
+  
+  .pie-vis { font-size: 0.88rem; color: var(--tinta-60); margin-top: 0.5rem; font-style: italic; font-family: 'Inter', sans-serif; }
+  
+  .separador-vis { height: 1px; background: var(--linea); margin: 3rem 0; }
+  iframe { width: 100%; border: none; min-height: 400px; border-radius: 8px; }
+
+  /* --- 2) ANIMACIONES DE SCROLL (Scroll Animations) --- */
+  .anim-bloque {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s cubic-bezier(0.21, 0.6, 0.35, 1), transform 0.7s cubic-bezier(0.21, 0.6, 0.35, 1);
+  }
+  .anim-bloque.entrar {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Estados de Carga / Error */
+  .mensaje-pantalla { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; text-align: center; font-family: 'Inter', sans-serif; background: #FAF8F4; color: #16161A; }
+  .mensaje-pantalla.oscuro { background: #0F0F11; color: #F5F5F7; }
+  .oculto { display: none !important; }
+</style>
+</head>
+<body class="tpl-editorial">
+
+<div id="pantalla-estado" class="mensaje-pantalla">
+  <p id="texto-estado" style="font-size: 1.1rem; font-weight: 500;">Cargando historia interactiva...</p>
+</div>
+
+<article id="contenido-articulo" class="articulo oculto">
+  <h1 id="art-titulo"></h1>
+  <div id="art-bloques"></div>
+</article>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBr5OcwH9jKdoBVr6Dp_hJto5oNHEbJGtI",
+  authDomain: "ludo-preguntas.firebaseapp.com",
+  databaseURL: "https://ludo-preguntas-default-rtdb.firebaseio.com",
+  projectId: "ludo-preguntas",
+  storageBucket: "ludo-preguntas.appspot.com",
+  messagingSenderId: "154849132864",
+  appId: "1:154849132864:web:93146bf6ad58833a58faa5"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const params = new URLSearchParams(window.location.search);
+const idDoc  = params.get('id');
+
+if(!idDoc) {
+  document.getElementById('texto-estado').textContent = "⚠️ Error: Falta el identificador del reportaje.";
+} else {
+  // Comprobar autenticación para validar si el lector es el dueño (para ver borradores)
+  onAuthStateChanged(auth, async (user) => {
+    try {
+      const snap = await getDoc(doc(db, 'reportajes', idDoc));
+      if(!snap.exists()) {
+        document.getElementById('texto-estado').textContent = "🕵️‍♂️ El reportaje solicitado no existe o fue eliminado.";
+        return;
+      }
+      
+      const data = snap.data();
+      const esDueno = user && user.uid === data.ownerUid;
+      
+      // Validar reglas de lectura
+      if(!data.publicado && !esDueno) {
+        document.getElementById('texto-estado').textContent = "🔒 Esta historia se encuentra guardada como borrador privado.";
+        return;
+      }
+      
+      // Configurar Plantilla Estética
+      const plantilla = data.plantilla || 'editorial';
+      document.body.className = 'tpl-' + plantilla;
+      if(plantilla === 'oscuro') document.getElementById('pantalla-estado').className = "mensaje-pantalla oscuro";
+      
+      // Renderizar Datos
+      document.title = data.titulo || 'Reportaje interactivo';
+      document.getElementById('art-titulo').textContent = data.titulo || 'Sin título';
+      
+      const contBloques = document.getElementById('art-bloques');
+      contBloques.innerHTML = '';
+      
+      (data.bloques || []).forEach(b => {
+        const div = document.createElement('div');
+        div.className = 'anim-bloque';
+        
+        if(b.tipo === 'titulo') {
+          div.innerHTML = `<h2>${escapar(b.texto)}</h2>`;
+        } else if(b.tipo === 'subtitulo') {
+          div.innerHTML = `<h3 style="font-size:1.4rem; margin-top:2rem; margin-bottom:0.8rem;">${escapar(b.texto)}</h3>`;
+        } else if(b.tipo === 'parrafo') {
+          div.innerHTML = `<p class="p-text">${escapar(b.texto)}</p>`;
+        } else if(b.tipo === 'cita') {
+          div.innerHTML = `<div class="cita-vis">${escapar(b.texto)}</div>`;
+        } else if(b.tipo === 'separador') {
+          div.innerHTML = `<div class="separador-vis"></div>`;
+        } else if(b.tipo === 'imagen' && b.url) {
+          div.innerHTML = `<div class="img-wrap"><img src="${b.url}" alt="" /><div class="pie-vis">${escapar(b.pie)}</div></div>`;
+        } else if(b.tipo === 'audio' && b.url) {
+          div.innerHTML = `<div class="audio-wrap"><audio src="${b.url}" controls style="width:100%"></audio><div class="pie-vis">${escapar(b.pie)}</div></div>`;
+        } else if(b.tipo === 'grafico' && b.embed) {
+          // Inyectar el código embed/iframe de manera segura
+          div.className += ' grafico-wrap';
+          div.innerHTML = b.embed + `<div class="pie-vis">${escapar(b.pie)}</div>`;
+          // Ajustar comportamiento responsivo del iframe incrustado si existe
+          const iff = div.querySelector('iframe');
+          if(iff) iff.style.width = '100%';
+        }
+        
+        if(div.innerHTML) contBloques.appendChild(div);
+      });
+      
+      // Ocultar pantalla de carga y mostrar artículo
+      document.getElementById('pantalla-estado').classList.add('oculto');
+      document.getElementById('contenido-articulo').classList.remove('oculto');
+      
+      // --- INICIALIZAR ANIMACIONES DE SCROLL (Intersection Observer) ---
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if(entry.isIntersecting) {
+            entry.target.classList.add('entrar');
+          }
+        });
+      }, { threshold: 0.08 });
+      
+      document.querySelectorAll('.anim-bloque').forEach(el => observer.observe(el));
+      
+    } catch(err) {
+      console.error(err);
+      document.getElementById('texto-estado').textContent = "❌ Error crítico al procesar la base de datos.";
+    }
+  });
+}
+
+function escapar(s){ return (s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+</script>
+</body>
+</html>
