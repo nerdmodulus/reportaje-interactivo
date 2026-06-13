@@ -445,6 +445,7 @@ const proveedor = new GoogleAuthProvider();
 
 let usuario=null, reportajeActual=null, timerGuardado=null, cambiosPendientes=false, numReportajes=0, modoPublico=false;
 let graficosPendientes={};
+let repLector=null;
 
 const $ = id => document.getElementById(id);
 const mostrar = (el,si=true) => el.classList.toggle('oculto', !si);
@@ -807,6 +808,7 @@ $('btn-cerrar-lector').addEventListener('click', cerrarLector);
 $('btn-compartir').addEventListener('click', compartir);
 
 function renderLector(rep){
+  repLector=rep;
   graficosPendientes={};
   const cont=$('lector-contenido');
   cont.className='tema-'+(rep.tema||'editorial')+(rep.glass?' glass':'');
@@ -881,9 +883,9 @@ function construirHTML(rep){  let html='';
   (rep.bloques||[]).forEach(b=>{
     switch(b.tipo){
       case 'hero':{
-        const fondo = b.video
-          ? `<video class="L-hero-media" autoplay muted loop playsinline src="${escapar(b.video)}"></video>`
-          : (b.url ? `<img class="L-hero-media" data-parallax="0.18" src="${escapar(b.url)}" alt="" onerror="this.style.display='none'">` : '');
+        let fondo='';
+        if(b.url)   fondo+=`<img class="L-hero-media" data-parallax="0.18" src="${escapar(b.url)}" alt="" onerror="this.style.display='none'">`;
+        if(b.video) fondo+=`<video class="L-hero-media" autoplay muted loop playsinline src="${escapar(b.video)}" onerror="this.style.display='none'"></video>`;
         html+=`<section class="L-hero">${fondo}
           <div class="L-hero-velo"></div>
           <div class="L-hero-txt rev"><h1 class="palabras">${palabrasHTML(b.titulo)}</h1>
@@ -1081,7 +1083,7 @@ function activarAudios(root){
 }
 
 function colorTema(){
-  const tema=reportajeActual.tema||'editorial';
+  const tema=(repLector&&repLector.tema)||'editorial';
   if(tema==='revista') return { color:'#FF2D6B', grid:'rgba(255,255,255,.12)', txt:'#fff', paleta:['#FF2D6B','#ffffff','#9a9a9a','#ffb800','#2d4ecc'] };
   if(tema==='cine')    return { color:'#d9b370', grid:'rgba(255,255,255,.1)', txt:'#e8e6e1', paleta:['#d9b370','#8a6d3b','#c0c0b0','#5a5a52','#a08a5a'] };
   return { color:'#2D4ECC', grid:'rgba(0,0,0,.08)', txt:'#1c1c1a', paleta:['#2D4ECC','#E8A13A','#00267C','#C23B22','#2c7a45'] };
