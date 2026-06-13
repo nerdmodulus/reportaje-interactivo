@@ -174,6 +174,26 @@
 
   /* video de fondo (portada / cinematográfico) */
   .L-hero-video,.L-full-video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  /* medios de fondo robustos (img/video) para portada e imagen full */
+  .L-hero-media,.L-full-media{ position:absolute; inset:-8% 0; width:100%; height:116%; object-fit:cover; will-change:transform; }
+  .L-media-fallback{ position:absolute; inset:0; display:grid; place-items:center; color:#888; font-size:.9rem; background:#1a1a1a; text-align:center; padding:1rem; }
+
+  /* revelado palabra por palabra (BlurText) */
+  .pal{ display:inline-block; opacity:0; filter:blur(8px); transform:translateY(14px); transition:opacity .55s ease, filter .55s ease, transform .55s cubic-bezier(.16,1,.3,1); }
+  .palabras.visible .pal{ opacity:1; filter:blur(0); transform:none; }
+
+  /* glassmorphism opcional (liquid glass) */
+  .glass .L-graf-caja,
+  .glass .ap .caja,
+  .glass .L-cita,
+  .glass .L-scrolly-paso > div,
+  .glass .L-seq-paso > div{
+    background:rgba(255,255,255,.07) !important;
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,.18) !important;
+    box-shadow:inset 0 1px 1px rgba(255,255,255,.18), 0 8px 32px rgba(0,0,0,.25) !important;
+  }
+  .glass .L-cita{ color:inherit !important; }
 
   /* TEMA EDITORIAL */
   .tema-editorial{ background:#FAF8F4; color:#1c1c1a; }
@@ -337,6 +357,11 @@
       <div class="selector"><span>🎨 Estilo visual</span>
         <select id="tema"><option value="editorial">Editorial (serif, clásico)</option><option value="revista">Revista (bold, alto contraste)</option><option value="cine">Cine (oscuro, dramático)</option></select>
       </div>
+      <div class="selector"><span>🎨 Fondo</span>
+        <input type="color" id="fondo" value="#0c0c0e" style="width:34px;height:30px;padding:0;border:1px solid var(--linea);border-radius:8px;cursor:pointer;background:none;" />
+        <button id="fondo-reset" class="mini-btn" title="Volver al fondo del estilo">por defecto</button>
+      </div>
+      <label class="selector" style="cursor:pointer;"><input type="checkbox" id="glass" /> <span>✨ Glassmorphism</span></label>
       <button id="btn-preview" class="btn btn-fantasma btn-sm">👁 Vista previa</button>
     </div>
     <div id="bloques" class="bloques"></div>
@@ -438,15 +463,17 @@ async function cargarReportajes(){
 
 /* CREAR / ABRIR / GUARDAR */
 $('btn-nuevo').addEventListener('click', async ()=>{
-  try{ const ref=await addDoc(collection(db,'reportajes'),{ ownerUid:usuario.uid, ownerEmail:usuario.email, titulo:'', tema:'editorial', bloques:[], publicado:false, createdAt:serverTimestamp(), updatedAt:serverTimestamp() }); abrirReportaje(ref.id); }
+  try{ const ref=await addDoc(collection(db,'reportajes'),{ ownerUid:usuario.uid, ownerEmail:usuario.email, titulo:'', tema:'editorial', fondo:'', glass:false, bloques:[], publicado:false, createdAt:serverTimestamp(), updatedAt:serverTimestamp() }); abrirReportaje(ref.id); }
   catch(e){ toast('Error al crear: '+e.code); console.error(e); }
 });
 async function abrirReportaje(id){
   const snap=await getDoc(doc(db,'reportajes',id)); if(!snap.exists()){ toast('No encontrado'); return; }
   const d=snap.data();
-  reportajeActual={ id, titulo:d.titulo||'', tema:d.tema||'editorial', bloques:d.bloques||[] };
+  reportajeActual={ id, titulo:d.titulo||'', tema:d.tema||'editorial', fondo:d.fondo||'', glass:!!d.glass, bloques:d.bloques||[] };
   $('titulo-reportaje').value=reportajeActual.titulo;
   $('tema').value=reportajeActual.tema;
+  $('fondo').value=reportajeActual.fondo||'#0c0c0e';
+  $('glass').checked=reportajeActual.glass;
   renderBloques();
   mostrar($('vista-dashboard'),false); mostrar($('vista-editor'),true); mostrar($('barra-editor'),true);
   marcarGuardado(true);
@@ -455,7 +482,7 @@ $('btn-volver').addEventListener('click', async ()=>{ if(cambiosPendientes) awai
 async function guardar(){
   if(!reportajeActual) return;
   reportajeActual.titulo=$('titulo-reportaje').value;
-  try{ await updateDoc(doc(db,'reportajes',reportajeActual.id),{ titulo:reportajeActual.titulo, tema:reportajeActual.tema, bloques:reportajeActual.bloques, updatedAt:serverTimestamp() }); marcarGuardado(true); }
+  try{ await updateDoc(doc(db,'reportajes',reportajeActual.id),{ titulo:reportajeActual.titulo, tema:reportajeActual.tema, fondo:reportajeActual.fondo||'', glass:!!reportajeActual.glass, bloques:reportajeActual.bloques, updatedAt:serverTimestamp() }); marcarGuardado(true); }
   catch(e){ toast('Error al guardar: '+e.code); console.error(e); }
 }
 $('btn-guardar').addEventListener('click', ()=>{ guardar(); toast('Guardado'); });
@@ -463,6 +490,9 @@ function programarGuardado(){ marcarGuardado(false); clearTimeout(timerGuardado)
 function marcarGuardado(ok){ cambiosPendientes=!ok; $('punto-guardado').classList.toggle('pendiente',!ok); $('texto-guardado').textContent=ok?'Guardado':'Guardando…'; }
 $('titulo-reportaje').addEventListener('input', programarGuardado);
 $('tema').addEventListener('change', e=>{ reportajeActual.tema=e.target.value; programarGuardado(); });
+$('fondo').addEventListener('input', e=>{ reportajeActual.fondo=e.target.value; programarGuardado(); });
+$('fondo-reset').addEventListener('click', ()=>{ reportajeActual.fondo=''; programarGuardado(); toast('Fondo: estilo por defecto'); });
+$('glass').addEventListener('change', e=>{ reportajeActual.glass=e.target.checked; programarGuardado(); });
 
 /* ELIMINAR */
 $('btn-eliminar-rep').addEventListener('click', async ()=>{ if(!confirm('¿Eliminar este reportaje? No se puede deshacer.')) return; await deleteDoc(doc(db,'reportajes',reportajeActual.id)); toast('Eliminado'); irADashboard(); });
@@ -733,7 +763,8 @@ async function abrirLector(){
   if(cambiosPendientes) await guardar();
   graficosPendientes={};
   const cont=$('lector-contenido');
-  cont.className='tema-'+(reportajeActual.tema||'editorial');
+  cont.className='tema-'+(reportajeActual.tema||'editorial')+(reportajeActual.glass?' glass':'');
+  cont.style.backgroundColor=reportajeActual.fondo||'';
   cont.innerHTML=construirHTML(reportajeActual);
   mostrar($('lector'),true);
   $('lector').scrollTop=0;
@@ -752,23 +783,28 @@ function cerrarLector(){
   $('lector-contenido').querySelectorAll('audio,video').forEach(m=>{ try{ m.pause(); }catch(e){} });
 }
 
-function construirHTML(rep){
-  let html='';
+/* divide un texto en palabras animables (revelado con desenfoque) */
+function palabrasHTML(texto){
+  const t=escapar(texto||'');
+  if(!t) return '';
+  return t.split(/\s+/).map((w,i)=>`<span class="pal" style="transition-delay:${(i*0.06).toFixed(2)}s">${w}</span>`).join(' ');
+}
+function construirHTML(rep){  let html='';
   (rep.bloques||[]).forEach(b=>{
     switch(b.tipo){
-      case 'hero':
-        html+=`<section class="L-hero">
-          ${b.video
-            ? `<video class="L-hero-video" autoplay muted loop playsinline src="${escapar(b.video)}"></video>`
-            : `<div class="L-hero-bg" data-parallax="0.25" style="background-image:url('${escapar(b.url)}')"></div>`}
+      case 'hero':{
+        const fondo = b.video
+          ? `<video class="L-hero-media" autoplay muted loop playsinline src="${escapar(b.video)}"></video>`
+          : (b.url ? `<img class="L-hero-media" data-parallax="0.18" src="${escapar(b.url)}" alt="" onerror="this.style.display='none'">` : '');
+        html+=`<section class="L-hero">${fondo}
           <div class="L-hero-velo"></div>
-          <div class="L-hero-txt rev"><h1>${escapar(b.titulo)}</h1>
+          <div class="L-hero-txt rev"><h1 class="palabras">${palabrasHTML(b.titulo)}</h1>
             ${b.subtitulo?`<p class="sub">${escapar(b.subtitulo)}</p>`:''}
             ${(b.autor||b.fecha)?`<p class="meta">${escapar(b.autor)}${b.autor&&b.fecha?' · ':''}${escapar(b.fecha)}</p>`:''}
           </div>
           <div class="L-scroll-hint">↓</div>
-        </section>`; break;
-      case 'titulo':    html+=`<div class="L-cont"><h1 class="rev" style="font-size:2.4rem;line-height:1.1;margin:2.5rem 0 1rem;">${escapar(b.texto)}</h1></div>`; break;
+        </section>`; break; }
+      case 'titulo':    html+=`<div class="L-cont"><h1 class="palabras" style="font-size:2.4rem;line-height:1.1;margin:2.5rem 0 1rem;">${palabrasHTML(b.texto)}</h1></div>`; break;
       case 'subtitulo': html+=`<div class="L-cont"><h4 class="rev" style="font-size:1.5rem;margin:1.8rem 0 .6rem;">${escapar(b.texto)}</h4></div>`; break;
       case 'parrafo':   html+=`<div class="L-cont"><p class="L-parrafo rev">${escapar(b.texto).replace(/\n/g,'<br>')}</p></div>`; break;
       case 'cita':      html+=`<div class="L-cont"><blockquote class="L-cita rev">${escapar(b.texto)}</blockquote></div>`; break;
@@ -776,7 +812,7 @@ function construirHTML(rep){
       case 'separador': html+=`<div class="L-sep rev"></div>`; break;
       case 'imagenFull':
         html+=`<section class="L-full pos-${b.posicion||'abajo'}">
-          <div class="L-full-bg" data-parallax="0.2" style="background-image:url('${escapar(b.url)}')"></div>
+          ${b.url?`<img class="L-full-media" data-parallax="0.15" src="${escapar(b.url)}" alt="" onerror="this.style.display='none'">`:''}
           <div class="L-full-velo"></div>
           <div class="L-full-txt rev"><p>${escapar(b.texto).replace(/\n/g,'<br>')}</p></div>
         </section>`; break;
@@ -815,7 +851,8 @@ async function iniciarEfectos(){
   observerRev=new IntersectionObserver(entries=>{
     entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); observerRev.unobserve(e.target); } });
   },{ root, threshold:0.15 });
-  root.querySelectorAll('.rev').forEach(el=>observerRev.observe(el));
+  root.querySelectorAll('.rev, .palabras').forEach(el=>observerRev.observe(el));
+  root.querySelectorAll('video').forEach(v=>{ const p=v.play(); if(p&&p.catch) p.catch(()=>{}); });
 
   parallaxEls=[...root.querySelectorAll('[data-parallax]')];
   let ticking=false;
