@@ -333,6 +333,42 @@
     .tarjeta{ flex-direction:column; align-items:flex-start; }
     .ap-spotify .caja{ flex-direction:column; text-align:center; }
   }
+
+  /* ===== ANTES / DESPUÉS (comparación deslizante) ===== */
+  .L-cmp{ max-width:820px; margin:3rem auto; padding:0 1.5rem; }
+  .cmp-wrap{ position:relative; overflow:hidden; border-radius:8px; cursor:ew-resize; user-select:none; touch-action:none; }
+  .cmp-img{ display:block; width:100%; pointer-events:none; }
+  .cmp-top{ position:absolute; top:0; left:0; height:100%; width:50%; overflow:hidden; }
+  .cmp-top .cmp-img{ position:absolute; top:0; left:0; max-width:none; width:auto; height:100%; }
+  .cmp-divisor{ position:absolute; top:0; bottom:0; left:50%; width:2px; background:#fff; box-shadow:0 0 0 1px rgba(0,0,0,.25); transform:translateX(-50%); pointer-events:none; }
+  .cmp-handle{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:38px; height:38px; border-radius:50%; background:#fff; color:#16161A; display:grid; place-items:center; font-size:.95rem; box-shadow:0 2px 10px rgba(0,0,0,.35); }
+  .cmp-etq{ position:absolute; bottom:.8rem; font-size:.7rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:#fff; background:rgba(0,0,0,.55); padding:.25rem .6rem; border-radius:99px; backdrop-filter:blur(4px); pointer-events:none; }
+  .cmp-etq-a{ left:.8rem; } .cmp-etq-b{ right:.8rem; }
+  .L-cmp figcaption{ font-size:.85rem; margin-top:.5rem; text-align:center; opacity:.7; font-style:italic; }
+
+  /* ===== CIFRA (gran número animado) ===== */
+  .L-cifra{ text-align:center; margin:3.5rem auto; }
+  .cifra-num{ font-family:'Fraunces',serif; font-weight:600; font-size:clamp(3rem,9vw,6rem); line-height:1; letter-spacing:-.02em; }
+  .cifra-txt{ font-size:1.05rem; opacity:.82; margin:.6rem auto 0; max-width:520px; }
+
+  /* ===== LÍNEA DE TIEMPO ===== */
+  .L-tl{ margin:3rem auto; }
+  .L-tl h4{ margin-bottom:1.5rem; font-size:1.4rem; }
+  .tl-lista{ position:relative; padding-left:1.6rem; }
+  .tl-lista::before{ content:""; position:absolute; left:5px; top:.4rem; bottom:.4rem; width:2px; background:currentColor; opacity:.2; }
+  .tl-item{ position:relative; padding-bottom:1.8rem; }
+  .tl-item:last-child{ padding-bottom:0; }
+  .tl-punto{ position:absolute; left:-1.6rem; top:.3rem; width:12px; height:12px; border-radius:50%; background:currentColor; }
+  .tl-fecha{ font-size:.78rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; opacity:.7; margin-bottom:.25rem; }
+  .tl-texto{ font-size:1.05rem; line-height:1.55; }
+
+  /* video / iframe de fondo a pantalla completa (portada e imagen full) */
+  .L-bg-embed{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:max(100vw,177.78vh); height:max(56.25vw,100vh); pointer-events:none; border:0; z-index:0; }
+
+  /* acentos por tema para los componentes nuevos */
+  .tema-editorial .cifra-num{ color:#6b4e16; } .tema-editorial .tl-punto,.tema-editorial .tl-lista::before{ color:#E8A13A; }
+  .tema-revista .cifra-num{ font-family:'Space Grotesk',sans-serif; color:#FF2D6B; } .tema-revista .tl-punto,.tema-revista .tl-lista::before{ color:#FF2D6B; }
+  .tema-cine .cifra-num{ color:#d9b370; } .tema-cine .tl-punto,.tema-cine .tl-lista::before{ color:#d9b370; }
 </style>
 </head>
 <body>
@@ -395,6 +431,9 @@
         <button data-tipo="grafico"><span class="ic">📊</span>Gráfico</button>
         <button data-tipo="scrolly"><span class="ic">📜</span>Scrolly</button>
         <button data-tipo="secuencia"><span class="ic">🎞</span>Secuencia</button>
+        <button data-tipo="comparacion"><span class="ic">🔍</span>Antes/Después</button>
+        <button data-tipo="cifra"><span class="ic">🔢</span>Cifra</button>
+        <button data-tipo="timeline"><span class="ic">🕓</span>Línea de tiempo</button>
         <button data-tipo="audio"><span class="ic">🎧</span>Audio</button>
         <button data-tipo="video"><span class="ic">🎥</span>Video</button>
         <button data-tipo="separador"><span class="ic">⎯</span>Separador</button>
@@ -556,11 +595,14 @@ const PLANTILLAS = {
   grafico:   { tipoG:'barras', titulo:'', fuente:'', datos:[{etiqueta:'',valor:0},{etiqueta:'',valor:0}] },
   scrolly:   { url:'', pasos:[''] },
   secuencia: { pasos:[{url:'',texto:''},{url:'',texto:''}] },
+  comparacion:{ urlA:'', urlB:'', etqA:'Antes', etqB:'Después', pie:'' },
+  cifra:     { numero:'100', prefijo:'', sufijo:'', texto:'' },
+  timeline:  { titulo:'', items:[{fecha:'',texto:''},{fecha:'',texto:''}] },
   audio:     { url:'', titulo:'', artista:'', estilo:'spotify' },
   video:     { src:'', titulo:'' },
   separador: { estilo:'linea' }
 };
-const NOMBRES = { hero:'Portada', titulo:'Título', subtitulo:'Subtítulo', parrafo:'Párrafo', cita:'Cita', imagen:'Imagen', imagenFull:'Imagen full', grafico:'Gráfico', scrolly:'Scrolly', secuencia:'Secuencia', audio:'Audio', video:'Video', separador:'Separador' };
+const NOMBRES = { hero:'Portada', titulo:'Título', subtitulo:'Subtítulo', parrafo:'Párrafo', cita:'Cita', imagen:'Imagen', imagenFull:'Imagen full', grafico:'Gráfico', scrolly:'Scrolly', secuencia:'Secuencia', comparacion:'Antes/Después', cifra:'Cifra', timeline:'Línea de tiempo', audio:'Audio', video:'Video', separador:'Separador' };
 
 $('btn-agregar').addEventListener('click', ()=>mostrar($('menu-bloques'),$('menu-bloques').classList.contains('oculto')));
 document.querySelectorAll('#menu-bloques button').forEach(b=>b.addEventListener('click',()=>{ agregarBloque(b.dataset.tipo); mostrar($('menu-bloques'),false); }));
@@ -650,7 +692,7 @@ function cuerpoBloque(b){
     fila.append(au,fe);
     const u=input('campo campo-url',b.url,'URL de la imagen de fondo…');
     const prev=document.createElement('img'); prev.className='img-prev';
-    const vid=input('campo campo-url',b.video,'Opcional: URL de video .mp4 para fondo animado…');
+    const vid=input('campo campo-url',b.video,'Opcional: YouTube, Vimeo o .mp4 para fondo animado…');
     const refr=()=>{ prev.src=b.url; mostrar(prev,!!b.url); };
     t.addEventListener('input',e=>{ b.titulo=e.target.value; programarGuardado(); });
     s.addEventListener('input',e=>{ b.subtitulo=e.target.value; programarGuardado(); });
@@ -658,7 +700,7 @@ function cuerpoBloque(b){
     fe.addEventListener('input',e=>{ b.fecha=e.target.value; programarGuardado(); });
     u.addEventListener('input',e=>{ b.url=e.target.value; refr(); programarGuardado(); });
     vid.addEventListener('input',e=>{ b.video=e.target.value; programarGuardado(); });
-    box.append(t,s,fila,etiqueta('Imagen de fondo'),filaUrl(u),prev,etiqueta('Video de fondo (opcional, tiene prioridad sobre la imagen)'),vid); refr(); return box;
+    box.append(t,s,fila,etiqueta('Imagen de fondo'),filaUrl(u),prev,etiqueta('Video de fondo (opcional · YouTube, Vimeo o .mp4 · va sobre la imagen)'),vid); refr(); return box;
   }
 
   if(b.tipo==='imagenFull'){
@@ -787,6 +829,67 @@ function cuerpoBloque(b){
     box.append(hint,u,ti); return box;
   }
 
+  if(b.tipo==='comparacion'){
+    const box=document.createElement('div'); box.className='form-bloque';
+    const hint=document.createElement('div'); hint.className='hint'; hint.textContent='Dos imágenes del mismo encuadre que el lector compara arrastrando un control. Ideal para antes/después. Funciona mejor si ambas tienen el mismo tamaño.';
+    const uA=input('campo campo-url',b.urlA,'URL de la imagen A (antes)…');
+    const pA=document.createElement('img'); pA.className='img-prev';
+    const uB=input('campo campo-url',b.urlB,'URL de la imagen B (después)…');
+    const pB=document.createElement('img'); pB.className='img-prev';
+    const rA=()=>{ pA.src=b.urlA; mostrar(pA,!!b.urlA); };
+    const rB=()=>{ pB.src=b.urlB; mostrar(pB,!!b.urlB); };
+    uA.addEventListener('input',e=>{ b.urlA=e.target.value; rA(); programarGuardado(); });
+    uB.addEventListener('input',e=>{ b.urlB=e.target.value; rB(); programarGuardado(); });
+    const fila=document.createElement('div'); fila.className='form-fila';
+    const eA=input('campo campo-txt',b.etqA,'Etiqueta A'); const eB=input('campo campo-txt',b.etqB,'Etiqueta B');
+    fila.append(eA,eB);
+    eA.addEventListener('input',e=>{ b.etqA=e.target.value; programarGuardado(); });
+    eB.addEventListener('input',e=>{ b.etqB=e.target.value; programarGuardado(); });
+    const pie=input('campo img-pie',b.pie,'Pie de foto (opcional)');
+    pie.addEventListener('input',e=>{ b.pie=e.target.value; programarGuardado(); });
+    box.append(hint,etiqueta('Imagen A (antes)'),filaUrl(uA),pA,etiqueta('Imagen B (después)'),filaUrl(uB),pB,etiqueta('Etiquetas'),fila,pie); rA(); rB(); return box;
+  }
+
+  if(b.tipo==='cifra'){
+    const box=document.createElement('div'); box.className='form-bloque';
+    const hint=document.createElement('div'); hint.className='hint'; hint.textContent='Un número grande que cuenta hacia arriba cuando aparece en pantalla. Para destacar un dato clave. Escribe el número sin puntos (ej: 1250).';
+    const fila=document.createElement('div'); fila.className='form-fila';
+    const pre=input('campo campo-txt',b.prefijo,'Prefijo'); pre.style.maxWidth='90px';
+    const num=input('campo campo-txt',b.numero,'Número (ej: 1250)');
+    const suf=input('campo campo-txt',b.sufijo,'Sufijo'); suf.style.maxWidth='90px';
+    fila.append(pre,num,suf);
+    pre.addEventListener('input',e=>{ b.prefijo=e.target.value; programarGuardado(); });
+    num.addEventListener('input',e=>{ b.numero=e.target.value; programarGuardado(); });
+    suf.addEventListener('input',e=>{ b.sufijo=e.target.value; programarGuardado(); });
+    const txt=textarea('campo campo-txt',b.texto,'Descripción del dato…'); setTimeout(()=>autoAlto(txt),0);
+    txt.addEventListener('input',e=>{ b.texto=e.target.value; autoAlto(txt); programarGuardado(); });
+    box.append(hint,etiqueta('Cifra (prefijo · número · sufijo)'),fila,etiqueta('Descripción'),txt); return box;
+  }
+
+  if(b.tipo==='timeline'){
+    const box=document.createElement('div'); box.className='form-bloque';
+    const tit=input('campo campo-txt',b.titulo,'Título de la línea de tiempo (opcional)…');
+    tit.addEventListener('input',e=>{ b.titulo=e.target.value; programarGuardado(); });
+    const wrap=document.createElement('div'); wrap.className='form-bloque';
+    const pintar=()=>{
+      wrap.innerHTML=''; wrap.appendChild(etiqueta('Hitos'));
+      b.items.forEach((it,idx)=>{
+        const fila=document.createElement('div'); fila.className='form-fila';
+        const fe=input('campo campo-txt',it.fecha,'Fecha'); fe.style.maxWidth='140px';
+        const te=textarea('campo campo-txt',it.texto,'¿Qué pasó?'); setTimeout(()=>autoAlto(te),0);
+        const del=document.createElement('button'); del.className='ic-btn peligro'; del.textContent='✕';
+        fe.addEventListener('input',e=>{ it.fecha=e.target.value; programarGuardado(); });
+        te.addEventListener('input',e=>{ it.texto=e.target.value; autoAlto(te); programarGuardado(); });
+        del.addEventListener('click',()=>{ b.items.splice(idx,1); pintar(); programarGuardado(); });
+        fila.append(fe,te,del); wrap.appendChild(fila);
+      });
+      const add=document.createElement('button'); add.className='mini-btn'; add.textContent='＋ Agregar hito';
+      add.addEventListener('click',()=>{ b.items.push({fecha:'',texto:''}); pintar(); programarGuardado(); });
+      wrap.appendChild(add);
+    };
+    box.append(tit); pintar(); box.append(wrap); return box;
+  }
+
   return document.createElement('div');
 }
 
@@ -884,8 +987,8 @@ function construirHTML(rep){  let html='';
     switch(b.tipo){
       case 'hero':{
         let fondo='';
-        if(b.url)   fondo+=`<img class="L-hero-media" data-parallax="0.18" src="${escapar(b.url)}" alt="" onerror="this.style.display='none'">`;
-        if(b.video) fondo+=`<video class="L-hero-media" autoplay muted loop playsinline src="${escapar(b.video)}" onerror="this.style.display='none'"></video>`;
+        if(b.url)   fondo+=`<img class="L-hero-media" data-parallax="0.18" data-zoom src="${escapar(b.url)}" alt="" onerror="this.style.display='none'">`;
+        fondo+=fondoVideo(b.video,'L-hero-media');
         html+=`<section class="L-hero">${fondo}
           <div class="L-hero-velo"></div>
           <div class="L-hero-txt rev"><h1 class="palabras">${palabrasHTML(b.titulo)}</h1>
@@ -902,7 +1005,7 @@ function construirHTML(rep){  let html='';
       case 'separador': html+=`<div class="L-sep rev"></div>`; break;
       case 'imagenFull':
         html+=`<section class="L-full pos-${b.posicion||'abajo'}">
-          ${b.url?`<img class="L-full-media" data-parallax="0.15" src="${escapar(b.url)}" alt="" onerror="this.style.display='none'">`:''}
+          ${b.url?`<img class="L-full-media" data-parallax="0.15" data-zoom src="${escapar(b.url)}" alt="" onerror="this.style.display='none'">`:''}
           <div class="L-full-velo"></div>
           <div class="L-full-txt rev"><p>${escapar(b.texto).replace(/\n/g,'<br>')}</p></div>
         </section>`; break;
@@ -927,6 +1030,25 @@ function construirHTML(rep){  let html='';
           <div class="L-seq-media"><div class="L-seq-capa" data-capa="a"></div><div class="L-seq-capa" data-capa="b"></div><div class="L-seq-velo"></div></div>
           <div class="L-seq-pasos">${pasos}</div>
         </section>`; break; }
+      case 'comparacion':{
+        html+=`<figure class="L-cont L-cmp rev" data-cmp>
+          <div class="cmp-wrap">
+            <img class="cmp-img cmp-a" src="${escapar(b.urlA)}" alt="" onerror="this.style.display='none'">
+            <div class="cmp-top"><img class="cmp-img cmp-b" src="${escapar(b.urlB)}" alt="" onerror="this.style.display='none'"></div>
+            <div class="cmp-divisor"><span class="cmp-handle">⟷</span></div>
+            ${b.etqA?`<span class="cmp-etq cmp-etq-a">${escapar(b.etqA)}</span>`:''}
+            ${b.etqB?`<span class="cmp-etq cmp-etq-b">${escapar(b.etqB)}</span>`:''}
+          </div>
+          ${b.pie?`<figcaption>${escapar(b.pie)}</figcaption>`:''}
+        </figure>`; break; }
+      case 'cifra':{
+        html+=`<div class="L-cont L-cifra rev" data-cifra data-num="${escapar(String(b.numero))}" data-pre="${escapar(b.prefijo)}" data-suf="${escapar(b.sufijo)}">
+          <div class="cifra-num">${escapar(b.prefijo)}0${escapar(b.sufijo)}</div>
+          ${b.texto?`<div class="cifra-txt">${escapar(b.texto).replace(/\n/g,'<br>')}</div>`:''}
+        </div>`; break; }
+      case 'timeline':{
+        let items=''; (b.items||[]).forEach(it=>{ if(it&&(it.fecha||it.texto)) items+=`<div class="tl-item rev"><div class="tl-punto"></div>${it.fecha?`<div class="tl-fecha">${escapar(it.fecha)}</div>`:''}<div class="tl-texto">${escapar(it.texto).replace(/\n/g,'<br>')}</div></div>`; });
+        html+=`<div class="L-cont L-tl rev">${b.titulo?`<h4>${escapar(b.titulo)}</h4>`:''}<div class="tl-lista">${items}</div></div>`; break; }
       case 'audio': html+=audioHTML(b); break;
       case 'video':{
         const emb=embedVideo(b.src);
@@ -954,7 +1076,12 @@ async function iniciarEfectos(){
         const r=el.parentElement.getBoundingClientRect();
         const centro=r.top+r.height/2-h/2;
         const f=parseFloat(el.dataset.parallax)||0.2;
-        el.style.transform=`translateY(${(-centro*f).toFixed(1)}px)`;
+        let tf=`translateY(${(-centro*f).toFixed(1)}px)`;
+        if(el.hasAttribute('data-zoom')){
+          const prog=Math.min(1,Math.max(0,(h-r.top)/(h+r.height)));
+          tf+=` scale(${(1.05+prog*0.12).toFixed(3)})`;
+        }
+        el.style.transform=tf;
       });
       const prog=root.scrollTop/(root.scrollHeight-h||1);
       $('progreso').style.width=Math.min(100,Math.max(0,prog*100))+'%';
@@ -974,6 +1101,8 @@ async function iniciarEfectos(){
 
   activarAudios(root);
   activarSecuencias(root);
+  activarComparaciones(root);
+  activarCifras(root);
 }
 
 /* ---- SECUENCIA: cambia la imagen según el paso visible ---- */
@@ -1001,6 +1130,54 @@ function activarSecuencias(root){
   });
 }
 
+/* ---- ANTES/DESPUÉS: control deslizante ---- */
+function activarComparaciones(root){
+  root.querySelectorAll('[data-cmp]').forEach(fig=>{
+    const wrap=fig.querySelector('.cmp-wrap');
+    const top=fig.querySelector('.cmp-top');
+    const div=fig.querySelector('.cmp-divisor');
+    const imgB=fig.querySelector('.cmp-b');
+    if(!wrap||!top||!div) return;
+    const ajustar=()=>{ if(imgB) imgB.style.width=wrap.clientWidth+'px'; };
+    fig.querySelectorAll('img').forEach(im=>{ if(im.complete) ajustar(); else im.addEventListener('load',ajustar); });
+    try{ new ResizeObserver(ajustar).observe(wrap); }catch(e){}
+    ajustar();
+    let activo=false;
+    const set=x=>{ const r=wrap.getBoundingClientRect(); let p=((x-r.left)/r.width)*100; p=Math.max(0,Math.min(100,p)); top.style.width=p+'%'; div.style.left=p+'%'; };
+    wrap.addEventListener('pointerdown',e=>{ activo=true; try{ wrap.setPointerCapture(e.pointerId); }catch(_){} set(e.clientX); });
+    wrap.addEventListener('pointermove',e=>{ if(activo) set(e.clientX); });
+    wrap.addEventListener('pointerup',()=>{ activo=false; });
+    wrap.addEventListener('pointercancel',()=>{ activo=false; });
+  });
+}
+
+/* ---- CIFRA: cuenta ascendente al entrar en pantalla ---- */
+function activarCifras(root){
+  const els=[...root.querySelectorAll('[data-cifra]')];
+  if(!els.length) return;
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ animarCifra(e.target); obs.unobserve(e.target); } });
+  },{ root, threshold:0.5 });
+  els.forEach(el=>obs.observe(el));
+  seqObservers.push(obs);
+}
+function animarCifra(el){
+  const crudo=el.dataset.num||'0';
+  const destino=parseFloat(crudo.replace(/[^\d.\-]/g,''))||0;
+  const pre=el.dataset.pre||'', suf=el.dataset.suf||'';
+  const dec=crudo.includes('.')?((crudo.split('.')[1]||'').length):0;
+  const out=el.querySelector('.cifra-num'); if(!out) return;
+  const dur=1400, t0=performance.now();
+  const fmt=n=>pre+n.toLocaleString('es-CL',{minimumFractionDigits:dec,maximumFractionDigits:dec})+suf;
+  const paso=now=>{
+    const p=Math.min(1,(now-t0)/dur);
+    const e=1-Math.pow(1-p,3);
+    out.textContent=fmt(destino*e);
+    if(p<1) requestAnimationFrame(paso); else out.textContent=fmt(destino);
+  };
+  requestAnimationFrame(paso);
+}
+
 /* ---- VIDEO embebido (solo enlaces, sin subir) ---- */
 function embedVideo(v){
   v=(v||'').trim();
@@ -1010,6 +1187,17 @@ function embedVideo(v){
   if(m) return `<iframe src="https://player.vimeo.com/video/${m[1]}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
   if(/^https?:\/\//.test(v)) return `<iframe src="${escapar(v)}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
   return `<div style="position:absolute;inset:0;display:grid;place-items:center;color:#888;font-size:.9rem;padding:1rem;text-align:center;">Pega un enlace de YouTube, Vimeo o una URL de inserción.</div>`;
+}
+
+/* ---- VIDEO de fondo (embebido o mp4) para portada / imagen full ---- */
+function fondoVideo(v, claseMedia){
+  v=(v||'').trim(); if(!v) return '';
+  let m=v.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([\w-]{11})/);
+  if(m){ const id=m[1]; return `<iframe class="L-bg-embed" src="https://www.youtube.com/embed/${id}?autoplay=1&mute=1&loop=1&playlist=${id}&controls=0&modestbranding=1&playsinline=1&rel=0&disablekb=1&showinfo=0&iv_load_policy=3" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`; }
+  m=v.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  if(m){ return `<iframe class="L-bg-embed" src="https://player.vimeo.com/video/${m[1]}?background=1&autoplay=1&loop=1&muted=1" frameborder="0" allow="autoplay" allowfullscreen></iframe>`; }
+  if(/\.(mp4|webm|ogv|ogg)(\?|#|$)/i.test(v)) return `<video class="${claseMedia}" autoplay muted loop playsinline src="${escapar(v)}" onerror="this.style.display='none'"></video>`;
+  return '';
 }
 
 /* ---- AUDIO: genera el HTML de cada estilo ---- */
