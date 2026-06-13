@@ -369,6 +369,35 @@
   .tema-editorial .cifra-num{ color:#6b4e16; } .tema-editorial .tl-punto,.tema-editorial .tl-lista::before{ color:#E8A13A; }
   .tema-revista .cifra-num{ font-family:'Space Grotesk',sans-serif; color:#FF2D6B; } .tema-revista .tl-punto,.tema-revista .tl-lista::before{ color:#FF2D6B; }
   .tema-cine .cifra-num{ color:#d9b370; } .tema-cine .tl-punto,.tema-cine .tl-lista::before{ color:#d9b370; }
+
+  /* ===== PLANTILLAS (dashboard) ===== */
+  .plantillas-seccion{ margin-bottom:2.5rem; }
+  .plantillas-titulo{ font-family:'Fraunces',serif; font-weight:600; font-size:1.05rem; margin-bottom:.8rem; color:var(--tinta); }
+  .plantillas-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(185px,1fr)); gap:.7rem; }
+  .plantilla-card{ text-align:left; padding:1rem; background:#fff; border:1px solid var(--linea); border-radius:var(--radio); box-shadow:var(--sombra); cursor:pointer; transition:.15s; display:flex; flex-direction:column; gap:.25rem; }
+  .plantilla-card:hover{ border-color:var(--cobalto); transform:translateY(-2px); }
+  .plantilla-card .emoji{ font-size:1.5rem; }
+  .plantilla-card b{ font-family:'Fraunces',serif; font-size:1.02rem; letter-spacing:-.01em; }
+  .plantilla-card span{ font-size:.8rem; color:var(--tinta-60); line-height:1.35; }
+  body.oscuro .plantilla-card{ background:#1e222a; }
+
+  /* ===== HTML / EMBED ===== */
+  .L-embed{ max-width:900px; margin:3rem auto; padding:0 1.5rem; }
+  .L-embed iframe{ max-width:100%; border:0; border-radius:10px; display:block; }
+  .L-embed .embed-pie{ font-size:.85rem; margin-top:.6rem; text-align:center; opacity:.7; font-style:italic; }
+  .embed-vacio{ display:grid; place-items:center; min-height:240px; border:1px dashed rgba(128,128,128,.4); border-radius:10px; color:#888; font-size:.9rem; text-align:center; padding:1.5rem; }
+
+  /* ===== ÍNDICE LATERAL + TIEMPO DE LECTURA ===== */
+  .L-lectura-chip{ position:fixed; top:1rem; left:1rem; z-index:108; font-size:.74rem; font-weight:600; letter-spacing:.03em; color:#fff; background:rgba(0,0,0,.5); padding:.32rem .75rem; border-radius:99px; backdrop-filter:blur(6px); }
+  .L-indice{ position:fixed; right:1rem; top:50%; transform:translateY(-50%); z-index:108; display:flex; flex-direction:column; gap:.15rem; max-width:210px; background:rgba(0,0,0,.4); backdrop-filter:blur(8px); padding:.7rem .55rem; border-radius:12px; }
+  .L-indice a{ font-size:.78rem; color:rgba(255,255,255,.62); text-decoration:none; padding:.22rem .5rem; border-right:2px solid transparent; transition:.15s; text-align:right; line-height:1.25; }
+  .L-indice a:hover{ color:#fff; }
+  .L-indice a.activo{ color:#fff; border-right-color:var(--ambar); font-weight:600; }
+  @media (max-width:960px){ .L-indice{ display:none; } }
+
+  /* selectores extra del editor de fondo */
+  #fondo-tipo, #fondo-estilo{ font-family:inherit; font-size:.85rem; padding:.4rem .6rem; border:1px solid var(--linea); border-radius:8px; background:#fff; color:var(--tinta); cursor:pointer; }
+  body.oscuro #fondo-tipo, body.oscuro #fondo-estilo, body.oscuro #fondo-imagen{ background:#1e222a; }
 </style>
 </head>
 <body>
@@ -395,7 +424,11 @@
   </header>
 
   <main id="vista-dashboard" class="contenedor">
-    <div class="dash-head"><div><h2>Mis reportajes</h2><p>Cada estudiante ve solo sus propios proyectos.</p></div><button id="btn-nuevo" class="btn btn-primario">＋ Nuevo reportaje</button></div>
+    <div class="dash-head"><div><h2>Mis reportajes</h2><p>Cada estudiante ve solo sus propios proyectos.</p></div><button id="btn-nuevo" class="btn btn-primario">＋ Empezar desde cero</button></div>
+    <div class="plantillas-seccion">
+      <p class="plantillas-titulo">O empieza con una plantilla lista para rellenar</p>
+      <div id="plantillas-grid" class="plantillas-grid"></div>
+    </div>
     <div id="lista-reportajes" class="lista"></div>
     <div class="credito"><span class="glow">Un desarrollo de <b>Rolando Araos</b>, docente Universidad Autónoma de Chile · Powered by <b>Claude Opus</b></span></div>
   </main>
@@ -411,7 +444,12 @@
         <select id="tema"><option value="editorial">Editorial (serif, clásico)</option><option value="revista">Revista (bold, alto contraste)</option><option value="cine">Cine (oscuro, dramático)</option></select>
       </div>
       <div class="selector"><span>🎨 Fondo</span>
+        <select id="fondo-tipo"><option value="color">Color</option><option value="imagen">Imagen</option><option value="estilo">Estilo</option></select>
         <input type="color" id="fondo" value="#0c0c0e" style="width:34px;height:30px;padding:0;border:1px solid var(--linea);border-radius:8px;cursor:pointer;background:none;" />
+        <select id="fondo-estilo" class="oculto"><option value="noche">Noche</option><option value="calido">Cálido</option><option value="aurora">Aurora</option><option value="rosa">Rosa</option><option value="pizarra">Pizarra</option><option value="papel">Papel</option></select>
+        <input id="fondo-imagen" class="campo campo-url oculto" placeholder="URL de imagen de fondo…" style="min-width:190px;" />
+        <button id="fondo-img-subir" class="mini-btn oculto">⬆ Subir</button>
+        <input id="fondo-img-file" type="file" accept="image/*" style="display:none;" />
         <button id="fondo-reset" class="mini-btn" title="Volver al fondo del estilo">por defecto</button>
       </div>
       <label class="selector" style="cursor:pointer;"><input type="checkbox" id="glass" /> <span>✨ Glassmorphism</span></label>
@@ -434,6 +472,7 @@
         <button data-tipo="comparacion"><span class="ic">🔍</span>Antes/Después</button>
         <button data-tipo="cifra"><span class="ic">🔢</span>Cifra</button>
         <button data-tipo="timeline"><span class="ic">🕓</span>Línea de tiempo</button>
+        <button data-tipo="embed"><span class="ic">🌐</span>HTML</button>
         <button data-tipo="audio"><span class="ic">🎧</span>Audio</button>
         <button data-tipo="video"><span class="ic">🎥</span>Video</button>
         <button data-tipo="separador"><span class="ic">⎯</span>Separador</button>
@@ -514,7 +553,33 @@ onAuthStateChanged(auth, u=>{ usuario=u; if(modoPublico) return; if(u){ mostrar(
 })();
 
 /* DASHBOARD */
-async function irADashboard(){ mostrar($('vista-editor'),false); mostrar($('barra-editor'),false); mostrar($('vista-dashboard'),true); await cargarReportajes(); }
+async function irADashboard(){ mostrar($('vista-editor'),false); mostrar($('barra-editor'),false); mostrar($('vista-dashboard'),true); renderPlantillas(); await cargarReportajes(); }
+
+function renderPlantillas(){
+  const grid=$('plantillas-grid'); if(!grid) return;
+  grid.innerHTML='';
+  Object.entries(PLANTILLAS_REPORTAJE).forEach(([key,pl])=>{
+    const c=document.createElement('button'); c.className='plantilla-card';
+    c.innerHTML=`<span class="emoji">${pl.emoji||'📄'}</span><b>${escapar(pl.nombre)}</b><span>${escapar(pl.desc||'')}</span>`;
+    c.addEventListener('click',()=>crearDesdePlantilla(key));
+    grid.appendChild(c);
+  });
+}
+async function crearDesdePlantilla(key){
+  if(numReportajes>=5){ toast('Límite de 5 reportajes alcanzado. Elimina uno para crear otro.'); return; }
+  const pl=PLANTILLAS_REPORTAJE[key]; if(!pl) return;
+  const bloques=(pl.bloques||[]).map(b=>({ id:uid(), ...structuredClone(b) }));
+  try{
+    const ref=await addDoc(collection(db,'reportajes'),{
+      ownerUid:usuario.uid, ownerEmail:usuario.email,
+      titulo:pl.nombre, tema:pl.tema||'editorial',
+      fondo:pl.fondo||'', fondoTipo:pl.fondoTipo||'color', fondoImagen:pl.fondoImagen||'', fondoEstilo:pl.fondoEstilo||'noche',
+      glass:!!pl.glass, bloques, publicado:false, createdAt:serverTimestamp(), updatedAt:serverTimestamp()
+    });
+    toast('Plantilla creada · ¡a rellenar!');
+    abrirReportaje(ref.id);
+  }catch(e){ toast('Error al crear: '+e.code); console.error(e); }
+}
 async function cargarReportajes(){
   const cont=$('lista-reportajes'); cont.innerHTML='<p style="color:var(--tinta-60)">Cargando…</p>';
   try{
@@ -549,16 +614,19 @@ async function cargarReportajes(){
 /* CREAR / ABRIR / GUARDAR */
 $('btn-nuevo').addEventListener('click', async ()=>{
   if(numReportajes>=5){ toast('Límite de 5 reportajes alcanzado. Elimina uno para crear otro.'); return; }
-  try{ const ref=await addDoc(collection(db,'reportajes'),{ ownerUid:usuario.uid, ownerEmail:usuario.email, titulo:'', tema:'editorial', fondo:'', glass:false, bloques:[], publicado:false, createdAt:serverTimestamp(), updatedAt:serverTimestamp() }); abrirReportaje(ref.id); }
+  try{ const ref=await addDoc(collection(db,'reportajes'),{ ownerUid:usuario.uid, ownerEmail:usuario.email, titulo:'', tema:'editorial', fondo:'', fondoTipo:'color', fondoImagen:'', fondoEstilo:'noche', glass:false, bloques:[], publicado:false, createdAt:serverTimestamp(), updatedAt:serverTimestamp() }); abrirReportaje(ref.id); }
   catch(e){ toast('Error al crear: '+e.code); console.error(e); }
 });
 async function abrirReportaje(id){
   const snap=await getDoc(doc(db,'reportajes',id)); if(!snap.exists()){ toast('No encontrado'); return; }
   const d=snap.data();
-  reportajeActual={ id, titulo:d.titulo||'', tema:d.tema||'editorial', fondo:d.fondo||'', glass:!!d.glass, bloques:d.bloques||[] };
+  reportajeActual={ id, titulo:d.titulo||'', tema:d.tema||'editorial', fondo:d.fondo||'', fondoTipo:d.fondoTipo||(d.fondo?'color':'color'), fondoImagen:d.fondoImagen||'', fondoEstilo:d.fondoEstilo||'noche', glass:!!d.glass, bloques:d.bloques||[] };
   $('titulo-reportaje').value=reportajeActual.titulo;
   $('tema').value=reportajeActual.tema;
   $('fondo').value=reportajeActual.fondo||'#0c0c0e';
+  $('fondo-estilo').value=reportajeActual.fondoEstilo||'noche';
+  $('fondo-imagen').value=reportajeActual.fondoImagen||'';
+  sincronizarFondoUI();
   $('glass').checked=reportajeActual.glass;
   renderBloques();
   mostrar($('vista-dashboard'),false); mostrar($('vista-editor'),true); mostrar($('barra-editor'),true);
@@ -568,7 +636,7 @@ $('btn-volver').addEventListener('click', async ()=>{ if(cambiosPendientes) awai
 async function guardar(){
   if(!reportajeActual) return;
   reportajeActual.titulo=$('titulo-reportaje').value;
-  try{ await updateDoc(doc(db,'reportajes',reportajeActual.id),{ titulo:reportajeActual.titulo, tema:reportajeActual.tema, fondo:reportajeActual.fondo||'', glass:!!reportajeActual.glass, bloques:reportajeActual.bloques, updatedAt:serverTimestamp() }); marcarGuardado(true); }
+  try{ await updateDoc(doc(db,'reportajes',reportajeActual.id),{ titulo:reportajeActual.titulo, tema:reportajeActual.tema, fondo:reportajeActual.fondo||'', fondoTipo:reportajeActual.fondoTipo||'color', fondoImagen:reportajeActual.fondoImagen||'', fondoEstilo:reportajeActual.fondoEstilo||'noche', glass:!!reportajeActual.glass, bloques:reportajeActual.bloques, updatedAt:serverTimestamp() }); marcarGuardado(true); }
   catch(e){ toast('Error al guardar: '+e.code); console.error(e); }
 }
 $('btn-guardar').addEventListener('click', ()=>{ guardar(); toast('Guardado'); });
@@ -576,8 +644,28 @@ function programarGuardado(){ marcarGuardado(false); clearTimeout(timerGuardado)
 function marcarGuardado(ok){ cambiosPendientes=!ok; $('punto-guardado').classList.toggle('pendiente',!ok); $('texto-guardado').textContent=ok?'Guardado':'Guardando…'; }
 $('titulo-reportaje').addEventListener('input', programarGuardado);
 $('tema').addEventListener('change', e=>{ reportajeActual.tema=e.target.value; programarGuardado(); });
-$('fondo').addEventListener('input', e=>{ reportajeActual.fondo=e.target.value; programarGuardado(); });
-$('fondo-reset').addEventListener('click', ()=>{ reportajeActual.fondo=''; programarGuardado(); toast('Fondo: estilo por defecto'); });
+$('fondo').addEventListener('input', e=>{ reportajeActual.fondo=e.target.value; reportajeActual.fondoTipo='color'; programarGuardado(); });
+$('fondo-tipo').addEventListener('change', e=>{ reportajeActual.fondoTipo=e.target.value; sincronizarFondoUI(); programarGuardado(); });
+$('fondo-estilo').addEventListener('change', e=>{ reportajeActual.fondoEstilo=e.target.value; reportajeActual.fondoTipo='estilo'; programarGuardado(); });
+$('fondo-imagen').addEventListener('input', e=>{ reportajeActual.fondoImagen=e.target.value; reportajeActual.fondoTipo='imagen'; programarGuardado(); });
+$('fondo-img-subir').addEventListener('click', ()=>$('fondo-img-file').click());
+$('fondo-img-file').addEventListener('change', async ()=>{
+  const f=$('fondo-img-file').files[0]; if(!f) return;
+  if(f.size>32*1024*1024){ toast('La imagen supera los 32 MB'); return; }
+  const btn=$('fondo-img-subir'); const txt=btn.textContent; btn.textContent='Subiendo…'; btn.disabled=true;
+  try{ const url=await subirImgBB(f); reportajeActual.fondoImagen=url; reportajeActual.fondoTipo='imagen'; $('fondo-imagen').value=url; programarGuardado(); btn.textContent='✓ Listo'; setTimeout(()=>{ btn.textContent=txt; btn.disabled=false; },1500); }
+  catch(e){ btn.textContent='⚠ Error'; setTimeout(()=>{ btn.textContent=txt; btn.disabled=false; },2000); toast('No se pudo subir: '+e.message); console.error(e); }
+  $('fondo-img-file').value='';
+});
+$('fondo-reset').addEventListener('click', ()=>{ reportajeActual.fondo=''; reportajeActual.fondoTipo='color'; reportajeActual.fondoImagen=''; $('fondo-imagen').value=''; sincronizarFondoUI(); programarGuardado(); toast('Fondo: estilo por defecto'); });
+function sincronizarFondoUI(){
+  const t=reportajeActual.fondoTipo||'color';
+  $('fondo-tipo').value=t;
+  mostrar($('fondo'), t==='color');
+  mostrar($('fondo-estilo'), t==='estilo');
+  mostrar($('fondo-imagen'), t==='imagen');
+  mostrar($('fondo-img-subir'), t==='imagen');
+}
 $('glass').addEventListener('change', e=>{ reportajeActual.glass=e.target.checked; programarGuardado(); });
 
 /* ELIMINAR */
@@ -600,9 +688,108 @@ const PLANTILLAS = {
   timeline:  { titulo:'', items:[{fecha:'',texto:''},{fecha:'',texto:''}] },
   audio:     { url:'', titulo:'', artista:'', estilo:'spotify' },
   video:     { src:'', titulo:'' },
+  embed:     { codigo:'', alto:'520', titulo:'' },
   separador: { estilo:'linea' }
 };
-const NOMBRES = { hero:'Portada', titulo:'Título', subtitulo:'Subtítulo', parrafo:'Párrafo', cita:'Cita', imagen:'Imagen', imagenFull:'Imagen full', grafico:'Gráfico', scrolly:'Scrolly', secuencia:'Secuencia', comparacion:'Antes/Después', cifra:'Cifra', timeline:'Línea de tiempo', audio:'Audio', video:'Video', separador:'Separador' };
+const NOMBRES = { hero:'Portada', titulo:'Título', subtitulo:'Subtítulo', parrafo:'Párrafo', cita:'Cita', imagen:'Imagen', imagenFull:'Imagen full', grafico:'Gráfico', scrolly:'Scrolly', secuencia:'Secuencia', comparacion:'Antes/Después', cifra:'Cifra', timeline:'Línea de tiempo', audio:'Audio', video:'Video', embed:'HTML / Embed', separador:'Separador' };
+
+/* Fondos de estilo predefinidos (sin archivos externos) */
+const FONDOS_ESTILO = {
+  noche:   'radial-gradient(120% 120% at 20% 0%, #1b2740, #0a0e18 55%, #05070d) fixed',
+  calido:  'radial-gradient(120% 120% at 80% 10%, #3a2a18, #1a120a 55%, #0c0805) fixed',
+  aurora:  'linear-gradient(135deg, #0f2027, #203a43 45%, #2c5364) fixed',
+  rosa:    'radial-gradient(120% 120% at 50% 0%, #2a1020, #160a14 60%, #0a0608) fixed',
+  pizarra: 'linear-gradient(180deg, #14161a, #0b0d10) fixed',
+  papel:   "#f3efe6 url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E\") repeat"
+};
+
+let indiceSecciones=[];
+
+/* ===== PLANTILLAS DE REPORTAJE (listas para rellenar) ===== */
+const PLANTILLAS_REPORTAJE = {
+  investigacion: {
+    nombre:'Investigación', emoji:'🔎',
+    desc:'Hallazgo central, datos duros y cronología. Tono serio.',
+    tema:'cine', fondoTipo:'estilo', fondoEstilo:'noche', glass:true,
+    bloques:[
+      { tipo:'hero', titulo:'Título de tu investigación', subtitulo:'Una bajada que resume el hallazgo principal en una sola frase potente.', autor:'Tu nombre', fecha:'Mes 2026', url:'', video:'' },
+      { tipo:'parrafo', texto:'Primer párrafo: presenta el tema y por qué importa. Engancha al lector con el dato o la escena más fuerte que encontraste.' },
+      { tipo:'cifra', numero:'1250', prefijo:'', sufijo:'', texto:'Explica qué representa esta cifra clave de tu investigación.' },
+      { tipo:'parrafo', texto:'Desarrolla el contexto: qué se sabía hasta ahora y qué cambia con lo que descubriste.' },
+      { tipo:'subtitulo', texto:'El primer hallazgo' },
+      { tipo:'parrafo', texto:'Explica el hallazgo con detalle. Cita fuentes, documentos o testimonios.' },
+      { tipo:'cita', texto:'Una cita textual de una fuente que sintetice el corazón de la historia.' },
+      { tipo:'imagen', url:'', pie:'Pie de foto: describe qué muestra y de dónde viene la imagen.' },
+      { tipo:'subtitulo', texto:'La cronología de los hechos' },
+      { tipo:'timeline', titulo:'', items:[ {fecha:'Enero 2025', texto:'Qué ocurrió en este momento.'}, {fecha:'Marzo 2025', texto:'El siguiente hito de la historia.'}, {fecha:'Hoy', texto:'Dónde está todo ahora.'} ] },
+      { tipo:'parrafo', texto:'Cierre: qué queda por resolver y qué deberían vigilar los lectores.' }
+    ]
+  },
+  perfil: {
+    nombre:'Perfil / Entrevista', emoji:'🎙️',
+    desc:'Retrato de una persona, con cita grande y audio.',
+    tema:'editorial', fondoTipo:'estilo', fondoEstilo:'papel', glass:false,
+    bloques:[
+      { tipo:'hero', titulo:'Nombre del personaje', subtitulo:'Una frase que capture quién es y por qué vale la pena conocerlo.', autor:'Tu nombre', fecha:'Mes 2026', url:'', video:'' },
+      { tipo:'parrafo', texto:'Abre con una escena: dónde estás, qué hace la persona, qué se ve y se escucha. Ponnos ahí.' },
+      { tipo:'cita', texto:'La frase más reveladora que dijo en la entrevista.' },
+      { tipo:'imagen', url:'', pie:'Retrato del personaje. Pie de foto opcional.' },
+      { tipo:'subtitulo', texto:'De dónde viene' },
+      { tipo:'parrafo', texto:'Cuenta su historia: orígenes, momentos clave, lo que la formó.' },
+      { tipo:'parrafo', texto:'Profundiza en el tema que motivó la entrevista.' },
+      { tipo:'audio', url:'', titulo:'Fragmento de la entrevista', artista:'Voz del personaje', estilo:'spotify' },
+      { tipo:'parrafo', texto:'Cierra con una mirada al futuro o una reflexión final.' }
+    ]
+  },
+  datos: {
+    nombre:'Explicador con datos', emoji:'📊',
+    desc:'Gráficos, cifras y un mapa o visualización embebida.',
+    tema:'revista', fondoTipo:'estilo', fondoEstilo:'pizarra', glass:false,
+    bloques:[
+      { tipo:'hero', titulo:'¿Qué está pasando con…?', subtitulo:'El tema complejo que vas a explicar de forma clara y visual.', autor:'Tu nombre', fecha:'Mes 2026', url:'', video:'' },
+      { tipo:'parrafo', texto:'Plantea la pregunta que el reportaje responde. ¿Por qué debería importarle a la gente?' },
+      { tipo:'subtitulo', texto:'Los números' },
+      { tipo:'grafico', tipoG:'barras', titulo:'Título del gráfico', fuente:'Fuente de los datos', datos:[ {etiqueta:'2022', valor:30}, {etiqueta:'2023', valor:52}, {etiqueta:'2024', valor:78} ] },
+      { tipo:'cifra', numero:'78', prefijo:'', sufijo:'%', texto:'El dato más impactante, en una sola cifra.' },
+      { tipo:'subtitulo', texto:'Antes y después' },
+      { tipo:'comparacion', urlA:'', urlB:'', etqA:'Antes', etqB:'Después', pie:'Arrastra para comparar las dos imágenes.' },
+      { tipo:'parrafo', texto:'Explica qué muestran los datos y la comparación.' },
+      { tipo:'subtitulo', texto:'Explóralo tú mismo' },
+      { tipo:'embed', codigo:'', alto:'520', titulo:'Visualización interactiva (Flourish, Genially, Knight Lab…).' },
+      { tipo:'parrafo', texto:'Cierra resumiendo la conclusión principal en una idea clara.' }
+    ]
+  },
+  cronica: {
+    nombre:'Crónica narrativa', emoji:'🎬',
+    desc:'Relato inmersivo con imágenes a pantalla completa.',
+    tema:'cine', fondoTipo:'estilo', fondoEstilo:'noche', glass:false,
+    bloques:[
+      { tipo:'hero', titulo:'El título de tu crónica', subtitulo:'Una bajada atmosférica que anticipe el tono del relato.', autor:'Tu nombre', fecha:'Mes 2026', url:'', video:'' },
+      { tipo:'parrafo', texto:'Empieza con una escena viva. Usa los cinco sentidos. Sitúa al lector en el lugar y el momento.' },
+      { tipo:'imagenFull', url:'', texto:'Una frase potente sobre la imagen a pantalla completa.', posicion:'abajo' },
+      { tipo:'parrafo', texto:'Avanza en el relato. Presenta a los personajes y la tensión central.' },
+      { tipo:'secuencia', pasos:[ {url:'', texto:'Primer momento de la secuencia.'}, {url:'', texto:'La imagen cambia mientras narras el segundo momento.'}, {url:'', texto:'El desenlace de la escena.'} ] },
+      { tipo:'cita', texto:'Una cita o frase que marque el punto de giro.' },
+      { tipo:'parrafo', texto:'Lleva la historia hacia su clímax.' },
+      { tipo:'separador', estilo:'linea' },
+      { tipo:'parrafo', texto:'Cierre: la última imagen o reflexión que quieres dejar resonando.' }
+    ]
+  },
+  foto: {
+    nombre:'Fotorreportaje', emoji:'📷',
+    desc:'La imagen manda; el texto acompaña.',
+    tema:'cine', fondoTipo:'color', fondo:'#0c0c0e', fondoEstilo:'noche', glass:false,
+    bloques:[
+      { tipo:'hero', titulo:'Título del fotorreportaje', subtitulo:'El lugar, la comunidad o el tema que retrataste.', autor:'Tu nombre', fecha:'Mes 2026', url:'', video:'' },
+      { tipo:'parrafo', texto:'Un texto breve que da contexto: dónde, cuándo y por qué hiciste estas fotos.' },
+      { tipo:'imagenFull', url:'', texto:'', posicion:'abajo' },
+      { tipo:'imagen', url:'', pie:'Pie de foto que cuente la historia detrás de la imagen.' },
+      { tipo:'comparacion', urlA:'', urlB:'', etqA:'Antes', etqB:'Después', pie:'Dos miradas del mismo lugar.' },
+      { tipo:'imagenFull', url:'', texto:'Una frase final sobre la imagen.', posicion:'centro' },
+      { tipo:'cita', texto:'Una voz del lugar que cierre el reportaje.' }
+    ]
+  }
+};
 
 $('btn-agregar').addEventListener('click', ()=>mostrar($('menu-bloques'),$('menu-bloques').classList.contains('oculto')));
 document.querySelectorAll('#menu-bloques button').forEach(b=>b.addEventListener('click',()=>{ agregarBloque(b.dataset.tipo); mostrar($('menu-bloques'),false); }));
@@ -829,6 +1016,20 @@ function cuerpoBloque(b){
     box.append(hint,u,ti); return box;
   }
 
+  if(b.tipo==='embed'){
+    const box=document.createElement('div'); box.className='form-bloque';
+    const hint=document.createElement('div'); hint.className='hint'; hint.textContent='Pega el código de inserción (la etiqueta <iframe …>) de Genially, Flourish, Knight Lab, Datawrapper, Google Maps, etc. También puedes pegar solo la URL de inserción. Usa siempre la opción "iframe" de cada plataforma.';
+    const ta=textarea('campo campo-txt',b.codigo,'<iframe src="…"></iframe>  o  https://…'); ta.style.minHeight='90px'; ta.style.fontFamily='ui-monospace, monospace'; ta.style.fontSize='.8rem';
+    const fila=document.createElement('div'); fila.className='form-fila';
+    const alto=input('campo campo-txt',b.alto,'Alto en píxeles (ej: 520)'); alto.type='number'; alto.style.maxWidth='160px';
+    const ti=input('campo campo-txt',b.titulo,'Pie / descripción (opcional)');
+    fila.append(alto,ti);
+    ta.addEventListener('input',e=>{ b.codigo=e.target.value; programarGuardado(); });
+    alto.addEventListener('input',e=>{ b.alto=e.target.value; programarGuardado(); });
+    ti.addEventListener('input',e=>{ b.titulo=e.target.value; programarGuardado(); });
+    box.append(hint,etiqueta('Código de inserción o URL'),ta,etiqueta('Alto (solo aplica si pegaste una URL) y pie'),fila); return box;
+  }
+
   if(b.tipo==='comparacion'){
     const box=document.createElement('div'); box.className='form-bloque';
     const hint=document.createElement('div'); hint.className='hint'; hint.textContent='Dos imágenes del mismo encuadre que el lector compara arrastrando un control. Ideal para antes/después. Funciona mejor si ambas tienen el mismo tamaño.';
@@ -913,14 +1114,49 @@ $('btn-compartir').addEventListener('click', compartir);
 function renderLector(rep){
   repLector=rep;
   graficosPendientes={};
+  indiceSecciones=[];
   const cont=$('lector-contenido');
   cont.className='tema-'+(rep.tema||'editorial')+(rep.glass?' glass':'');
-  cont.style.backgroundColor=rep.fondo||'';
+  aplicarFondo(cont, rep);
   cont.innerHTML=construirHTML(rep);
+  construirIndice(rep);
   mostrar($('lector'),true);
   $('lector').scrollTop=0;
   document.body.style.overflow='hidden';
   iniciarEfectos();
+}
+
+/* aplica color, imagen o estilo de fondo al lector */
+function aplicarFondo(cont, rep){
+  cont.style.background='';
+  const tipo=rep.fondoTipo || (rep.fondo?'color':'');
+  if(tipo==='color' && rep.fondo){ cont.style.backgroundColor=rep.fondo; }
+  else if(tipo==='imagen' && rep.fondoImagen){ cont.style.background=`#0c0c0e url('${rep.fondoImagen}') center center / cover no-repeat fixed`; }
+  else if(tipo==='estilo' && FONDOS_ESTILO[rep.fondoEstilo]){ cont.style.background=FONDOS_ESTILO[rep.fondoEstilo]; }
+}
+
+/* índice lateral + tiempo de lectura */
+function construirIndice(rep){
+  const lec=$('lector');
+  lec.querySelectorAll('.L-indice,.L-lectura-chip').forEach(n=>n.remove());
+  const min=calcularLectura(rep);
+  if(min){ const chip=document.createElement('div'); chip.className='L-lectura-chip'; chip.textContent='⏱ '+min+' min de lectura'; lec.appendChild(chip); }
+  if(indiceSecciones.length>=2){
+    const nav=document.createElement('nav'); nav.className='L-indice';
+    indiceSecciones.forEach(s=>{ const a=document.createElement('a'); a.href='#'+s.id; a.dataset.target=s.id; a.textContent=s.texto.length>28?s.texto.slice(0,28)+'…':s.texto; nav.appendChild(a); });
+    lec.appendChild(nav);
+    nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',ev=>{ ev.preventDefault(); const t=document.getElementById(a.dataset.target); if(t) t.scrollIntoView({behavior:'smooth',block:'start'}); }));
+  }
+}
+function calcularLectura(rep){
+  let palabras=0;
+  const cuenta=t=>{ if(t) palabras+=String(t).trim().split(/\s+/).filter(Boolean).length; };
+  (rep.bloques||[]).forEach(b=>{
+    cuenta(b.texto); cuenta(b.subtitulo); cuenta(b.titulo); cuenta(b.pie); cuenta(b.fuente);
+    (b.pasos||[]).forEach(p=>cuenta(typeof p==='string'?p:p.texto));
+    (b.items||[]).forEach(it=>{ cuenta(it.fecha); cuenta(it.texto); });
+  });
+  return palabras>40 ? Math.max(1,Math.round(palabras/200)) : 0;
 }
 
 async function abrirLector(){
@@ -957,7 +1193,7 @@ async function iniciarPublico(id){
       return;
     }
     const d=snap.data();
-    renderLector({ titulo:d.titulo||'', tema:d.tema||'editorial', fondo:d.fondo||'', glass:!!d.glass, bloques:d.bloques||[] });
+    renderLector({ titulo:d.titulo||'', tema:d.tema||'editorial', fondo:d.fondo||'', fondoTipo:d.fondoTipo||(d.fondo?'color':''), fondoImagen:d.fondoImagen||'', fondoEstilo:d.fondoEstilo||'noche', glass:!!d.glass, bloques:d.bloques||[] });
     document.title=(d.titulo||'Reportaje')+' — Reportaje interactivo';
   }catch(e){
     document.body.innerHTML='<div style="min-height:100vh;display:grid;place-items:center;font-family:Inter,sans-serif;color:#666;padding:2rem;text-align:center;">No se pudo cargar el reportaje.</div>';
@@ -973,6 +1209,7 @@ function cerrarLector(){
   seqObservers.forEach(o=>{ try{ o.disconnect(); }catch(e){} }); seqObservers=[];
   if(onScroll) $('lector').removeEventListener('scroll',onScroll);
   parallaxEls=[];
+  $('lector').querySelectorAll('.L-indice,.L-lectura-chip').forEach(n=>n.remove());
   $('lector-contenido').querySelectorAll('audio,video').forEach(m=>{ try{ m.pause(); }catch(e){} });
 }
 
@@ -997,8 +1234,8 @@ function construirHTML(rep){  let html='';
           </div>
           <div class="L-scroll-hint">↓</div>
         </section>`; break; }
-      case 'titulo':    html+=`<div class="L-cont"><h1 class="palabras" style="font-size:2.4rem;line-height:1.1;margin:2.5rem 0 1rem;">${palabrasHTML(b.texto)}</h1></div>`; break;
-      case 'subtitulo': html+=`<div class="L-cont"><h4 class="rev" style="font-size:1.5rem;margin:1.8rem 0 .6rem;">${escapar(b.texto)}</h4></div>`; break;
+      case 'titulo':{ const sid='sec'+uid(); if((b.texto||'').trim()) indiceSecciones.push({id:sid,texto:b.texto}); html+=`<div class="L-cont" id="${sid}"><h1 class="palabras" style="font-size:2.4rem;line-height:1.1;margin:2.5rem 0 1rem;">${palabrasHTML(b.texto)}</h1></div>`; break; }
+      case 'subtitulo':{ const sid='sec'+uid(); if((b.texto||'').trim()) indiceSecciones.push({id:sid,texto:b.texto}); html+=`<div class="L-cont" id="${sid}"><h4 class="rev" style="font-size:1.5rem;margin:1.8rem 0 .6rem;">${escapar(b.texto)}</h4></div>`; break; }
       case 'parrafo':   html+=`<div class="L-cont"><p class="L-parrafo rev">${escapar(b.texto).replace(/\n/g,'<br>')}</p></div>`; break;
       case 'cita':      html+=`<div class="L-cont"><blockquote class="L-cita rev">${escapar(b.texto)}</blockquote></div>`; break;
       case 'imagen':    html+=`<figure class="L-cont L-img rev"><img src="${escapar(b.url)}" alt="">${b.pie?`<figcaption>${escapar(b.pie)}</figcaption>`:''}</figure>`; break;
@@ -1049,6 +1286,14 @@ function construirHTML(rep){  let html='';
       case 'timeline':{
         let items=''; (b.items||[]).forEach(it=>{ if(it&&(it.fecha||it.texto)) items+=`<div class="tl-item rev"><div class="tl-punto"></div>${it.fecha?`<div class="tl-fecha">${escapar(it.fecha)}</div>`:''}<div class="tl-texto">${escapar(it.texto).replace(/\n/g,'<br>')}</div></div>`; });
         html+=`<div class="L-cont L-tl rev">${b.titulo?`<h4>${escapar(b.titulo)}</h4>`:''}<div class="tl-lista">${items}</div></div>`; break; }
+      case 'embed':{
+        const code=(b.codigo||'').trim();
+        const alto=parseInt(b.alto)||520;
+        let inner;
+        if(!code){ inner=`<div class="embed-vacio">Pega el código de inserción (iframe) o la URL de Genially, Flourish, Knight Lab, Datawrapper, etc.</div>`; }
+        else if(/^https?:\/\/\S+$/i.test(code)){ inner=`<iframe src="${escapar(code)}" style="width:100%;height:${alto}px;" allow="fullscreen; accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>`; }
+        else { inner=code; }
+        html+=`<div class="L-embed rev">${inner}${b.titulo?`<div class="embed-pie">${escapar(b.titulo)}</div>`:''}</div>`; break; }
       case 'audio': html+=audioHTML(b); break;
       case 'video':{
         const emb=embedVideo(b.src);
@@ -1103,6 +1348,20 @@ async function iniciarEfectos(){
   activarSecuencias(root);
   activarComparaciones(root);
   activarCifras(root);
+  activarIndice(root);
+}
+
+/* ---- ÍNDICE: resalta la sección visible ---- */
+function activarIndice(root){
+  const nav=$('lector').querySelector('.L-indice'); if(!nav) return;
+  const links=[...nav.querySelectorAll('a')];
+  const secs=links.map(a=>document.getElementById(a.dataset.target)).filter(Boolean);
+  if(!secs.length) return;
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ links.forEach(l=>l.classList.toggle('activo', l.dataset.target===e.target.id)); } });
+  },{ root, rootMargin:'0px 0px -75% 0px', threshold:0 });
+  secs.forEach(s=>obs.observe(s));
+  seqObservers.push(obs);
 }
 
 /* ---- SECUENCIA: cambia la imagen según el paso visible ---- */
