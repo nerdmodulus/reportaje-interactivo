@@ -195,6 +195,22 @@
   }
   .glass .L-cita{ color:inherit !important; }
 
+  /* crédito con brillo intermitente */
+  .credito{ text-align:center; margin:3.5rem auto 1rem; padding-top:2rem; border-top:1px solid var(--linea); font-size:.84rem; color:var(--tinta-60); }
+  .credito b{ color:var(--tinta); font-weight:600; }
+  .credito .glow{ animation:brilloCredito 2.6s ease-in-out infinite; }
+  @keyframes brilloCredito{
+    0%,100%{ text-shadow:0 0 0 rgba(45,78,204,0); }
+    50%{ text-shadow:0 0 12px rgba(45,78,204,.5), 0 0 22px rgba(232,161,58,.25); }
+  }
+
+  /* ===== MODO OSCURO (edición) ===== */
+  body.oscuro{ --papel:#13151a; --papel-2:#1e222a; --tinta:#e9eaee; --tinta-60:#9aa0ab; --tinta-30:#5b616d; --linea:#2a2f39; }
+  body.oscuro .tarjeta, body.oscuro .g-btn, body.oscuro .selector select,
+  body.oscuro .campo-url, body.oscuro .campo-txt, body.oscuro .menu-bloques,
+  body.oscuro .bloque:hover, body.oscuro .img-prev{ background:#1e222a; }
+  body.oscuro .barra, body.oscuro .barra-fija{ background:rgba(19,21,26,.88); }
+
   /* TEMA EDITORIAL */
   .tema-editorial{ background:#FAF8F4; color:#1c1c1a; }
   .tema-editorial h1,.tema-editorial h4{ font-family:'Fraunces',serif; }
@@ -339,12 +355,13 @@
 <div id="vista-app" class="oculto">
   <header class="barra">
     <div class="marca"><div class="marca-punto"></div><div><b>Reportajes</b><span>Periodismo interactivo</span></div></div>
-    <div class="usuario"><small id="u-email"></small><img id="u-avatar" class="avatar" alt="" /><button id="btn-logout" class="btn btn-fantasma btn-sm">Salir</button></div>
+    <div class="usuario"><small id="u-email"></small><img id="u-avatar" class="avatar" alt="" /><button id="btn-modo" class="btn btn-fantasma btn-sm" title="Modo claro/oscuro">🌙</button><button id="btn-logout" class="btn btn-fantasma btn-sm">Salir</button></div>
   </header>
 
   <main id="vista-dashboard" class="contenedor">
     <div class="dash-head"><div><h2>Mis reportajes</h2><p>Cada estudiante ve solo sus propios proyectos.</p></div><button id="btn-nuevo" class="btn btn-primario">＋ Nuevo reportaje</button></div>
     <div id="lista-reportajes" class="lista"></div>
+    <div class="credito"><span class="glow">Un desarrollo de <b>Rolando Araos</b>, docente Universidad Autónoma de Chile · Powered by <b>Claude Opus</b></span></div>
   </main>
 
   <main id="vista-editor" class="contenedor oculto">
@@ -391,6 +408,7 @@
       <div style="display:flex; gap:.6rem; align-items:center;">
         <span style="font-size:.82rem; color:var(--tinta-60);" id="contador-bloques"></span>
         <button id="btn-preview-2" class="btn btn-fantasma btn-sm">👁 Vista previa</button>
+        <button id="btn-compartir" class="btn btn-fantasma btn-sm">🔗 Compartir</button>
         <button id="btn-guardar" class="btn btn-primario btn-sm">Guardar</button>
       </div>
     </div>
@@ -425,7 +443,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const proveedor = new GoogleAuthProvider();
 
-let usuario=null, reportajeActual=null, timerGuardado=null, cambiosPendientes=false;
+let usuario=null, reportajeActual=null, timerGuardado=null, cambiosPendientes=false, numReportajes=0, modoPublico=false;
 let graficosPendientes={};
 
 const $ = id => document.getElementById(id);
@@ -438,7 +456,22 @@ function uid(){ return Math.random().toString(36).slice(2,9); }
 /* AUTH */
 $('btn-login').addEventListener('click', async ()=>{ try{ await signInWithPopup(auth,proveedor); }catch(e){ const x=$('login-error'); x.textContent='No se pudo iniciar sesión: '+e.code; mostrar(x,true); console.error(e); } });
 $('btn-logout').addEventListener('click', ()=>signOut(auth));
-onAuthStateChanged(auth, u=>{ usuario=u; if(u){ mostrar($('vista-login'),false); mostrar($('vista-app'),true); $('u-email').textContent=u.email; $('u-avatar').src=u.photoURL||''; irADashboard(); } else { mostrar($('vista-login'),true); mostrar($('vista-app'),false); } });
+
+/* Modo claro/oscuro (recuerda la preferencia) */
+function aplicarModo(oscuro){
+  document.body.classList.toggle('oscuro', oscuro);
+  $('btn-modo').textContent = oscuro ? '☀️' : '🌙';
+  try{ localStorage.setItem('modoOscuro', oscuro?'1':'0'); }catch(e){}
+}
+$('btn-modo').addEventListener('click', ()=>aplicarModo(!document.body.classList.contains('oscuro')));
+try{ if(localStorage.getItem('modoOscuro')==='1') aplicarModo(true); }catch(e){}
+onAuthStateChanged(auth, u=>{ usuario=u; if(modoPublico) return; if(u){ mostrar($('vista-login'),false); mostrar($('vista-app'),true); $('u-email').textContent=u.email; $('u-avatar').src=u.photoURL||''; irADashboard(); } else { mostrar($('vista-login'),true); mostrar($('vista-app'),false); } });
+
+/* ¿Llegamos por un enlace público (?r=ID)? Mostrar el reportaje sin login */
+(function detectarPublico(){
+  const id=new URLSearchParams(location.search).get('r');
+  if(id){ modoPublico=true; mostrar($('vista-login'),false); mostrar($('vista-app'),false); iniciarPublico(id); }
+})();
 
 /* DASHBOARD */
 async function irADashboard(){ mostrar($('vista-editor'),false); mostrar($('barra-editor'),false); mostrar($('vista-dashboard'),true); await cargarReportajes(); }
@@ -447,6 +480,10 @@ async function cargarReportajes(){
   try{
     const q=query(collection(db,'reportajes'),where('ownerUid','==',usuario.uid),orderBy('updatedAt','desc'));
     const snap=await getDocs(q);
+    numReportajes=snap.size;
+    $('btn-nuevo').disabled = numReportajes>=5;
+    $('btn-nuevo').style.opacity = numReportajes>=5 ? '.5' : '1';
+    $('btn-nuevo').title = numReportajes>=5 ? 'Límite de 5 reportajes alcanzado' : '';
     if(snap.empty){ cont.innerHTML='<div class="vacio"><b>Aún no tienes reportajes</b>Crea el primero con el botón “Nuevo reportaje”.</div>'; return; }
     cont.innerHTML='';
     snap.forEach(d=>{ const r=d.data(); const nb=(r.bloques||[]).length;
@@ -454,15 +491,24 @@ async function cargarReportajes(){
       div.innerHTML=`<div class="tarjeta-info"><h3>${escapar(r.titulo)||'Sin título'}</h3>
         <div class="tarjeta-meta"><span class="pill ${r.publicado?'pill-publicado':'pill-borrador'}">${r.publicado?'Publicado':'Borrador'}</span>
         <span>${nb} bloque${nb===1?'':'s'}</span><span>· ${r.tema||'editorial'}</span><span>· Editado ${fecha(r.updatedAt)}</span></div></div>
-        <div class="tarjeta-acciones"><button class="btn btn-fantasma btn-sm" data-abrir="${d.id}">Editar</button></div>`;
+        <div class="tarjeta-acciones">
+          <button class="btn btn-fantasma btn-sm" data-abrir="${d.id}">Editar</button>
+          <button class="btn btn-peligro btn-sm" data-borrar="${d.id}" data-titulo="${escapar(r.titulo)||'Sin título'}">Eliminar</button>
+        </div>`;
       cont.appendChild(div);
     });
     cont.querySelectorAll('[data-abrir]').forEach(b=>b.addEventListener('click',()=>abrirReportaje(b.dataset.abrir)));
+    cont.querySelectorAll('[data-borrar]').forEach(b=>b.addEventListener('click',async ()=>{
+      if(!confirm(`¿Eliminar el reportaje “${b.dataset.titulo}”? Esta acción no se puede deshacer.`)) return;
+      try{ await deleteDoc(doc(db,'reportajes',b.dataset.borrar)); toast('Reportaje eliminado'); cargarReportajes(); }
+      catch(e){ toast('Error al eliminar: '+e.code); console.error(e); }
+    }));
   }catch(e){ cont.innerHTML=`<div class="vacio"><b>No se pudo cargar</b>${e.code==='failed-precondition'?'Falta crear un índice en Firestore. Revisa la consola (F12): aparece un enlace para crearlo con un clic.':escapar(e.message)}</div>`; console.error(e); }
 }
 
 /* CREAR / ABRIR / GUARDAR */
 $('btn-nuevo').addEventListener('click', async ()=>{
+  if(numReportajes>=5){ toast('Límite de 5 reportajes alcanzado. Elimina uno para crear otro.'); return; }
   try{ const ref=await addDoc(collection(db,'reportajes'),{ ownerUid:usuario.uid, ownerEmail:usuario.email, titulo:'', tema:'editorial', fondo:'', glass:false, bloques:[], publicado:false, createdAt:serverTimestamp(), updatedAt:serverTimestamp() }); abrirReportaje(ref.id); }
   catch(e){ toast('Error al crear: '+e.code); console.error(e); }
 });
@@ -694,7 +740,7 @@ function cuerpoBloque(b){
       pasosWrap.innerHTML='';
       b.pasos.forEach((p,idx)=>{
         const cont=document.createElement('div'); cont.className='form-bloque';
-        cont.style.cssText='border:1px solid var(--linea); border-radius:10px; padding:.7rem; background:#fff;';
+        cont.style.cssText='border:1px solid var(--linea); border-radius:10px; padding:.7rem; background:var(--papel-2);';
         cont.appendChild(etiqueta('Paso '+(idx+1)));
         const u=input('campo campo-url',p.url,'URL de la imagen de este paso…');
         const prev=document.createElement('img'); prev.className='img-prev';
@@ -758,19 +804,62 @@ async function cargarChart(){
 $('btn-preview').addEventListener('click', abrirLector);
 $('btn-preview-2').addEventListener('click', abrirLector);
 $('btn-cerrar-lector').addEventListener('click', cerrarLector);
+$('btn-compartir').addEventListener('click', compartir);
 
-async function abrirLector(){
-  if(cambiosPendientes) await guardar();
+function renderLector(rep){
   graficosPendientes={};
   const cont=$('lector-contenido');
-  cont.className='tema-'+(reportajeActual.tema||'editorial')+(reportajeActual.glass?' glass':'');
-  cont.style.backgroundColor=reportajeActual.fondo||'';
-  cont.innerHTML=construirHTML(reportajeActual);
+  cont.className='tema-'+(rep.tema||'editorial')+(rep.glass?' glass':'');
+  cont.style.backgroundColor=rep.fondo||'';
+  cont.innerHTML=construirHTML(rep);
   mostrar($('lector'),true);
   $('lector').scrollTop=0;
   document.body.style.overflow='hidden';
   iniciarEfectos();
 }
+
+async function abrirLector(){
+  if(cambiosPendientes) await guardar();
+  renderLector(reportajeActual);
+}
+
+/* Publica el reportaje y comparte el enlace público */
+async function compartir(){
+  if(!reportajeActual) return;
+  try{
+    if(cambiosPendientes) await guardar();
+    if(!reportajeActual.publicado){
+      await updateDoc(doc(db,'reportajes',reportajeActual.id),{ publicado:true, updatedAt:serverTimestamp() });
+      reportajeActual.publicado=true;
+    }
+    const url=location.origin+location.pathname+'?r='+reportajeActual.id;
+    if(navigator.share){
+      try{ await navigator.share({ title:reportajeActual.titulo||'Reportaje', url }); return; }catch(e){ if(e.name==='AbortError') return; }
+    }
+    try{ await navigator.clipboard.writeText(url); toast('🔗 Enlace público copiado'); }
+    catch(e){ prompt('Copia este enlace público:', url); }
+  }catch(e){ toast('Error al compartir: '+e.code); console.error(e); }
+}
+
+/* Modo público: abre un reportaje publicado sin necesidad de login */
+async function iniciarPublico(id){
+  mostrar($('vista-login'),false); mostrar($('vista-app'),false);
+  $('btn-cerrar-lector').style.display='none';
+  try{
+    const snap=await getDoc(doc(db,'reportajes',id));
+    if(!snap.exists() || !snap.data().publicado){
+      document.body.innerHTML='<div style="min-height:100vh;display:grid;place-items:center;font-family:Inter,sans-serif;color:#666;text-align:center;padding:2rem;"><div><h1 style="font-family:Fraunces,serif;margin-bottom:.5rem;">Reportaje no disponible</h1><p>Este reportaje no existe o aún no ha sido publicado.</p></div></div>';
+      return;
+    }
+    const d=snap.data();
+    renderLector({ titulo:d.titulo||'', tema:d.tema||'editorial', fondo:d.fondo||'', glass:!!d.glass, bloques:d.bloques||[] });
+    document.title=(d.titulo||'Reportaje')+' — Reportaje interactivo';
+  }catch(e){
+    document.body.innerHTML='<div style="min-height:100vh;display:grid;place-items:center;font-family:Inter,sans-serif;color:#666;padding:2rem;text-align:center;">No se pudo cargar el reportaje.</div>';
+    console.error(e);
+  }
+}
+
 function cerrarLector(){
   mostrar($('lector'),false);
   document.body.style.overflow='';
@@ -779,7 +868,6 @@ function cerrarLector(){
   seqObservers.forEach(o=>{ try{ o.disconnect(); }catch(e){} }); seqObservers=[];
   if(onScroll) $('lector').removeEventListener('scroll',onScroll);
   parallaxEls=[];
-  // detener cualquier audio/video que esté sonando
   $('lector-contenido').querySelectorAll('audio,video').forEach(m=>{ try{ m.pause(); }catch(e){} });
 }
 
