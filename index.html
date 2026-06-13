@@ -162,6 +162,19 @@
   .L-scrolly-paso{ min-height:85vh; display:flex; align-items:center; justify-content:center; padding:2rem 1.5rem; }
   .L-scrolly-paso > div{ max-width:520px; padding:1.5rem 1.8rem; border-radius:12px; font-size:1.25rem; line-height:1.5; }
 
+  /* SECUENCIA — imágenes que cambian al avanzar (scrollytelling clásico) */
+  .L-seq{ position:relative; }
+  .L-seq-media{ position:sticky; top:0; height:100vh; overflow:hidden; }
+  .L-seq-capa{ position:absolute; inset:0; background-size:cover; background-position:center; opacity:0; transition:opacity .6s ease; }
+  .L-seq-capa.activa{ opacity:1; }
+  .L-seq-velo{ position:absolute; inset:0; z-index:1; }
+  .L-seq-pasos{ position:relative; margin-top:-100vh; z-index:2; }
+  .L-seq-paso{ min-height:92vh; display:flex; align-items:center; justify-content:center; padding:2rem 1.5rem; }
+  .L-seq-paso > div{ max-width:520px; padding:1.5rem 1.8rem; border-radius:12px; font-size:1.35rem; line-height:1.45; }
+
+  /* video de fondo (portada / cinematográfico) */
+  .L-hero-video,.L-full-video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+
   /* TEMA EDITORIAL */
   .tema-editorial{ background:#FAF8F4; color:#1c1c1a; }
   .tema-editorial h1,.tema-editorial h4{ font-family:'Fraunces',serif; }
@@ -173,6 +186,8 @@
   .tema-editorial .L-graf-caja{ background:#fff; border:1px solid #E4DFD5; }
   .tema-editorial .L-scrolly-velo{ background:rgba(20,18,12,.35); }
   .tema-editorial .L-scrolly-paso > div{ background:rgba(255,253,248,.94); color:#1c1c1a; font-family:'Fraunces',serif; }
+  .tema-editorial .L-seq-velo{ background:rgba(20,18,12,.35); }
+  .tema-editorial .L-seq-paso > div{ background:rgba(255,253,248,.94); color:#1c1c1a; font-family:'Fraunces',serif; }
 
   /* TEMA REVISTA */
   .tema-revista{ background:#ffffff; color:#0a0a0a; }
@@ -187,6 +202,8 @@
   .tema-revista .L-graf-caja{ background:#0a0a0a; color:#fff; }
   .tema-revista .L-scrolly-velo{ background:rgba(0,0,0,.4); }
   .tema-revista .L-scrolly-paso > div{ background:#FF2D6B; color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:600; }
+  .tema-revista .L-seq-velo{ background:rgba(0,0,0,.4); }
+  .tema-revista .L-seq-paso > div{ background:#FF2D6B; color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:600; }
 
   /* TEMA CINE */
   .tema-cine{ background:#0c0c0e; color:#e8e6e1; }
@@ -200,6 +217,8 @@
   .tema-cine .L-graf-caja{ background:#161618; border:1px solid #2a2a2e; }
   .tema-cine .L-scrolly-velo{ background:rgba(6,6,8,.5); }
   .tema-cine .L-scrolly-paso > div{ background:rgba(16,16,18,.86); color:#f4f1ea; font-family:'Fraunces',serif; border:1px solid rgba(217,179,112,.3); }
+  .tema-cine .L-seq-velo{ background:rgba(6,6,8,.45); }
+  .tema-cine .L-seq-paso > div{ background:rgba(16,16,18,.86); color:#f4f1ea; font-family:'Fraunces',serif; border:1px solid rgba(217,179,112,.3); }
 
   /* ===== VIDEO embebido ===== */
   .L-video{ max-width:820px; margin:3rem auto; padding:0 1.5rem; }
@@ -333,6 +352,7 @@
         <button data-tipo="imagenFull"><span class="ic">🌄</span>Imagen full</button>
         <button data-tipo="grafico"><span class="ic">📊</span>Gráfico</button>
         <button data-tipo="scrolly"><span class="ic">📜</span>Scrolly</button>
+        <button data-tipo="secuencia"><span class="ic">🎞</span>Secuencia</button>
         <button data-tipo="audio"><span class="ic">🎧</span>Audio</button>
         <button data-tipo="video"><span class="ic">🎥</span>Video</button>
         <button data-tipo="separador"><span class="ic">⎯</span>Separador</button>
@@ -449,7 +469,7 @@ $('btn-eliminar-rep').addEventListener('click', async ()=>{ if(!confirm('¿Elimi
 
 /* ===== BLOQUES — modelo + editor ===== */
 const PLANTILLAS = {
-  hero:      { titulo:'', subtitulo:'', autor:'', fecha:'', url:'' },
+  hero:      { titulo:'', subtitulo:'', autor:'', fecha:'', url:'', video:'' },
   titulo:    { texto:'' },
   subtitulo: { texto:'' },
   parrafo:   { texto:'' },
@@ -458,11 +478,12 @@ const PLANTILLAS = {
   imagenFull:{ url:'', texto:'', posicion:'abajo' },
   grafico:   { tipoG:'barras', titulo:'', fuente:'', datos:[{etiqueta:'',valor:0},{etiqueta:'',valor:0}] },
   scrolly:   { url:'', pasos:[''] },
+  secuencia: { pasos:[{url:'',texto:''},{url:'',texto:''}] },
   audio:     { url:'', titulo:'', artista:'', estilo:'spotify' },
   video:     { src:'', titulo:'' },
   separador: { estilo:'linea' }
 };
-const NOMBRES = { hero:'Portada', titulo:'Título', subtitulo:'Subtítulo', parrafo:'Párrafo', cita:'Cita', imagen:'Imagen', imagenFull:'Imagen full', grafico:'Gráfico', scrolly:'Scrolly', audio:'Audio', video:'Video', separador:'Separador' };
+const NOMBRES = { hero:'Portada', titulo:'Título', subtitulo:'Subtítulo', parrafo:'Párrafo', cita:'Cita', imagen:'Imagen', imagenFull:'Imagen full', grafico:'Gráfico', scrolly:'Scrolly', secuencia:'Secuencia', audio:'Audio', video:'Video', separador:'Separador' };
 
 $('btn-agregar').addEventListener('click', ()=>mostrar($('menu-bloques'),$('menu-bloques').classList.contains('oculto')));
 document.querySelectorAll('#menu-bloques button').forEach(b=>b.addEventListener('click',()=>{ agregarBloque(b.dataset.tipo); mostrar($('menu-bloques'),false); }));
@@ -552,13 +573,15 @@ function cuerpoBloque(b){
     fila.append(au,fe);
     const u=input('campo campo-url',b.url,'URL de la imagen de fondo…');
     const prev=document.createElement('img'); prev.className='img-prev';
+    const vid=input('campo campo-url',b.video,'Opcional: URL de video .mp4 para fondo animado…');
     const refr=()=>{ prev.src=b.url; mostrar(prev,!!b.url); };
     t.addEventListener('input',e=>{ b.titulo=e.target.value; programarGuardado(); });
     s.addEventListener('input',e=>{ b.subtitulo=e.target.value; programarGuardado(); });
     au.addEventListener('input',e=>{ b.autor=e.target.value; programarGuardado(); });
     fe.addEventListener('input',e=>{ b.fecha=e.target.value; programarGuardado(); });
     u.addEventListener('input',e=>{ b.url=e.target.value; refr(); programarGuardado(); });
-    box.append(t,s,fila,etiqueta('Imagen de fondo'),filaUrl(u),prev); refr(); return box;
+    vid.addEventListener('input',e=>{ b.video=e.target.value; programarGuardado(); });
+    box.append(t,s,fila,etiqueta('Imagen de fondo'),filaUrl(u),prev,etiqueta('Video de fondo (opcional, tiene prioridad sobre la imagen)'),vid); refr(); return box;
   }
 
   if(b.tipo==='imagenFull'){
@@ -632,6 +655,35 @@ function cuerpoBloque(b){
     return box;
   }
 
+  if(b.tipo==='secuencia'){
+    const box=document.createElement('div'); box.className='form-bloque';
+    const hint=document.createElement('div'); hint.className='hint'; hint.textContent='Cada paso tiene su propia imagen y texto. Al avanzar, la imagen cambia (ej: semáforo rojo → amarillo → verde). La imagen queda fija mientras se lee cada paso.';
+    box.appendChild(hint);
+    const pasosWrap=document.createElement('div'); pasosWrap.className='form-bloque';
+    const pintar=()=>{
+      pasosWrap.innerHTML='';
+      b.pasos.forEach((p,idx)=>{
+        const cont=document.createElement('div'); cont.className='form-bloque';
+        cont.style.cssText='border:1px solid var(--linea); border-radius:10px; padding:.7rem; background:#fff;';
+        cont.appendChild(etiqueta('Paso '+(idx+1)));
+        const u=input('campo campo-url',p.url,'URL de la imagen de este paso…');
+        const prev=document.createElement('img'); prev.className='img-prev';
+        const refr=()=>{ prev.src=p.url; mostrar(prev,!!p.url); };
+        u.addEventListener('input',e=>{ p.url=e.target.value; refr(); programarGuardado(); });
+        const ta=textarea('campo campo-txt',p.texto,'Texto de este paso…'); setTimeout(()=>autoAlto(ta),0);
+        ta.addEventListener('input',e=>{ p.texto=e.target.value; autoAlto(ta); programarGuardado(); });
+        const del=document.createElement('button'); del.className='mini-btn'; del.style.color='var(--rojo)'; del.textContent='✕ Quitar paso';
+        del.addEventListener('click',()=>{ b.pasos.splice(idx,1); pintar(); programarGuardado(); });
+        cont.append(filaUrl(u),prev,ta,del); refr(); pasosWrap.appendChild(cont);
+      });
+      const add=document.createElement('button'); add.className='mini-btn'; add.textContent='＋ Agregar paso';
+      add.addEventListener('click',()=>{ b.pasos.push({url:'',texto:''}); pintar(); programarGuardado(); });
+      pasosWrap.appendChild(add);
+    };
+    box.appendChild(pasosWrap); pintar();
+    return box;
+  }
+
   if(b.tipo==='audio'){
     const box=document.createElement('div'); box.className='form-bloque';
     const u=input('campo campo-url',b.url,'URL del archivo de audio (.mp3, .ogg, .m4a)…');
@@ -664,7 +716,7 @@ function cuerpoBloque(b){
 function mover(i,dir){ const j=i+dir; if(j<0||j>=reportajeActual.bloques.length) return; const a=reportajeActual.bloques; [a[i],a[j]]=[a[j],a[i]]; renderBloques(); programarGuardado(); }
 
 /* ===== LECTOR — render con efectos ===== */
-let observerRev=null, charts=[], parallaxEls=[], onScroll=null, ChartLib=null;
+let observerRev=null, charts=[], parallaxEls=[], onScroll=null, ChartLib=null, seqObservers=[];
 
 async function cargarChart(){
   if(ChartLib) return ChartLib;
@@ -693,8 +745,11 @@ function cerrarLector(){
   document.body.style.overflow='';
   if(observerRev) observerRev.disconnect();
   charts.forEach(c=>{ try{ c.destroy(); }catch(e){} }); charts=[];
+  seqObservers.forEach(o=>{ try{ o.disconnect(); }catch(e){} }); seqObservers=[];
   if(onScroll) $('lector').removeEventListener('scroll',onScroll);
   parallaxEls=[];
+  // detener cualquier audio/video que esté sonando
+  $('lector-contenido').querySelectorAll('audio,video').forEach(m=>{ try{ m.pause(); }catch(e){} });
 }
 
 function construirHTML(rep){
@@ -703,7 +758,9 @@ function construirHTML(rep){
     switch(b.tipo){
       case 'hero':
         html+=`<section class="L-hero">
-          <div class="L-hero-bg" data-parallax="0.25" style="background-image:url('${escapar(b.url)}')"></div>
+          ${b.video
+            ? `<video class="L-hero-video" autoplay muted loop playsinline src="${escapar(b.video)}"></video>`
+            : `<div class="L-hero-bg" data-parallax="0.25" style="background-image:url('${escapar(b.url)}')"></div>`}
           <div class="L-hero-velo"></div>
           <div class="L-hero-txt rev"><h1>${escapar(b.titulo)}</h1>
             ${b.subtitulo?`<p class="sub">${escapar(b.subtitulo)}</p>`:''}
@@ -736,6 +793,13 @@ function construirHTML(rep){
         html+=`<section class="L-scrolly">
           <div class="L-scrolly-media" style="background-image:url('${escapar(b.url)}')"><div class="L-scrolly-velo"></div></div>
           <div class="L-scrolly-pasos">${pasos}</div>
+        </section>`; break; }
+      case 'secuencia':{
+        let pasos='';
+        (b.pasos||[]).forEach(p=>{ pasos+=`<div class="L-seq-paso" data-url="${escapar(p.url)}"><div class="rev">${escapar(p.texto).replace(/\n/g,'<br>')}</div></div>`; });
+        html+=`<section class="L-seq">
+          <div class="L-seq-media"><div class="L-seq-capa" data-capa="a"></div><div class="L-seq-capa" data-capa="b"></div><div class="L-seq-velo"></div></div>
+          <div class="L-seq-pasos">${pasos}</div>
         </section>`; break; }
       case 'audio': html+=audioHTML(b); break;
       case 'video':{
@@ -782,6 +846,32 @@ async function iniciarEfectos(){
   }
 
   activarAudios(root);
+  activarSecuencias(root);
+}
+
+/* ---- SECUENCIA: cambia la imagen según el paso visible ---- */
+function activarSecuencias(root){
+  root.querySelectorAll('.L-seq').forEach(sec=>{
+    const capas=[sec.querySelector('[data-capa="a"]'), sec.querySelector('[data-capa="b"]')];
+    const pasos=[...sec.querySelectorAll('.L-seq-paso')];
+    if(!pasos.length) return;
+    let frente=0, actual=-1;
+    const mostrarImg=(url)=>{
+      const atras=1-frente;
+      capas[atras].style.backgroundImage=`url('${url}')`;
+      capas[atras].classList.add('activa');
+      capas[frente].classList.remove('activa');
+      frente=atras;
+    };
+    // imagen inicial
+    capas[0].style.backgroundImage=`url('${pasos[0].dataset.url}')`;
+    capas[0].classList.add('activa'); actual=0;
+    const obs=new IntersectionObserver(entries=>{
+      entries.forEach(e=>{ if(e.isIntersecting){ const i=pasos.indexOf(e.target); if(i!==actual && pasos[i].dataset.url){ actual=i; mostrarImg(pasos[i].dataset.url); } } });
+    },{ root, threshold:0, rootMargin:'-45% 0px -45% 0px' });
+    pasos.forEach(p=>obs.observe(p));
+    seqObservers.push(obs);
+  });
 }
 
 /* ---- VIDEO embebido (solo enlaces, sin subir) ---- */
