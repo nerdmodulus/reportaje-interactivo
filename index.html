@@ -7,239 +7,214 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,400;9..144,0,500;9..144,0,600;9..144,0,700;9..144,1,400;9..144,1,500&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
   :root{
-    --papel:    #FAF8F4;
-    --papel-2:  #F2EEE6;
-    --tinta:    #16161A;
-    --tinta-60: #5C5C63;
-    --tinta-30: #B7B5AE;
-    --cobalto:  #2D4ECC;
-    --cobalto-d:#22388f;
-    --ambar:    #E8A13A;
-    --linea:    #E4DFD5;
-    --rojo:     #C23B22;
-    --radio:    10px;
-    --sombra:   0 1px 2px rgba(22,22,26,.04), 0 8px 24px rgba(22,22,26,.06);
+    --papel:#FAF8F4; --papel-2:#F2EEE6; --tinta:#16161A; --tinta-60:#5C5C63;
+    --tinta-30:#B7B5AE; --cobalto:#2D4ECC; --cobalto-d:#22388f; --ambar:#E8A13A;
+    --linea:#E4DFD5; --rojo:#C23B22; --radio:10px;
+    --sombra:0 1px 2px rgba(22,22,26,.04), 0 8px 24px rgba(22,22,26,.06);
   }
-
   *{ box-sizing:border-box; margin:0; padding:0; }
-
-  body{
-    font-family:'Inter', system-ui, sans-serif;
-    background:var(--papel);
-    color:var(--tinta);
-    line-height:1.5;
-    -webkit-font-smoothing:antialiased;
-  }
-
-  /* ---------- Tipografía base ---------- */
-  .display{ font-family:'Fraunces', Georgia, serif; }
-  .eyebrow{
-    font-size:.72rem; font-weight:600; letter-spacing:.14em;
-    text-transform:uppercase; color:var(--tinta-60);
-  }
-
-  button, select{ font-family:inherit; cursor:pointer; border:none; background:none; outline:none;}
-
-  .btn{
-    display:inline-flex; align-items:center; gap:.5rem;
-    padding:.62rem 1.1rem; border-radius:var(--radio);
-    font-weight:600; font-size:.92rem; transition:.15s;
-    border:1px solid transparent;
-  }
-  .btn-primario{ background:var(--cobalto); color:#fff; }
-  .btn-primario:hover{ background:var(--cobalto-d); }
-  .btn-fantasma{ background:transparent; color:var(--tinta); border-color:var(--linea); }
-  .btn-fantasma:hover{ background:var(--papel-2); }
-  .btn-peligro{ color:var(--rojo); }
-  .btn-peligro:hover{ background:#f7e9e5; }
+  body{ font-family:'Inter',system-ui,sans-serif; background:var(--papel); color:var(--tinta); line-height:1.5; -webkit-font-smoothing:antialiased; }
+  .display{ font-family:'Fraunces',Georgia,serif; }
+  button{ font-family:inherit; cursor:pointer; border:none; background:none; }
+  .btn{ display:inline-flex; align-items:center; gap:.5rem; padding:.62rem 1.1rem; border-radius:var(--radio); font-weight:600; font-size:.92rem; transition:.15s; border:1px solid transparent; }
+  .btn-primario{ background:var(--cobalto); color:#fff; } .btn-primario:hover{ background:var(--cobalto-d); }
+  .btn-fantasma{ background:transparent; color:var(--tinta); border-color:var(--linea); } .btn-fantasma:hover{ background:var(--papel-2); }
+  .btn-peligro{ color:var(--rojo); } .btn-peligro:hover{ background:#f7e9e5; }
   .btn-sm{ padding:.38rem .7rem; font-size:.82rem; }
 
-  /* ---------- Layout app ---------- */
-  .barra{
-    display:flex; align-items:center; justify-content:space-between;
-    padding:1rem 1.5rem; border-bottom:1px solid var(--linea);
-    background:rgba(250,248,244,.85); backdrop-filter:blur(8px);
-    position:sticky; top:0; z-index:30;
-  }
+  .barra{ display:flex; align-items:center; justify-content:space-between; padding:1rem 1.5rem; border-bottom:1px solid var(--linea); background:rgba(250,248,244,.85); backdrop-filter:blur(8px); position:sticky; top:0; z-index:30; }
   .marca{ display:flex; align-items:center; gap:.65rem; }
-  .marca-punto{
-    width:26px; height:26px; border-radius:7px;
-    background:var(--tinta); position:relative; flex-shrink:0;
-  }
-  .marca-punto::after{
-    content:""; position:absolute; inset:7px 7px auto auto;
-    width:7px; height:7px; border-radius:50%; background:var(--ambar);
-  }
+  .marca-punto{ width:26px; height:26px; border-radius:7px; background:var(--tinta); position:relative; flex-shrink:0; }
+  .marca-punto::after{ content:""; position:absolute; inset:7px 7px auto auto; width:7px; height:7px; border-radius:50%; background:var(--ambar); }
   .marca b{ font-family:'Fraunces',serif; font-weight:600; font-size:1.08rem; letter-spacing:-.01em; }
   .marca span{ font-size:.7rem; color:var(--tinta-60); display:block; letter-spacing:.04em; }
-
   .usuario{ display:flex; align-items:center; gap:.7rem; }
   .avatar{ width:30px; height:30px; border-radius:50%; background:var(--papel-2); object-fit:cover; }
   .usuario small{ font-size:.82rem; color:var(--tinta-60); }
-
   .contenedor{ max-width:880px; margin:0 auto; padding:2.5rem 1.5rem 6rem; }
 
-  /* ---------- Login ---------- */
-  .login-wrap{
-    min-height:100vh; display:flex; align-items:center; justify-content:center;
-    padding:1.5rem; background:
-      radial-gradient(60% 50% at 20% 10%, rgba(45,78,204,.06), transparent),
-      radial-gradient(50% 40% at 90% 90%, rgba(232,161,58,.08), transparent),
-      var(--papel);
-  }
-  .login-card{
-    max-width:420px; width:100%; text-align:center;
-  }
+  .login-wrap{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:1.5rem; background:radial-gradient(60% 50% at 20% 10%, rgba(45,78,204,.06), transparent), radial-gradient(50% 40% at 90% 90%, rgba(232,161,58,.08), transparent), var(--papel); }
+  .login-card{ max-width:420px; width:100%; text-align:center; }
   .login-card .marca{ justify-content:center; margin-bottom:2rem; }
-  .login-card h1{
-    font-family:'Fraunces',serif; font-weight:600; font-size:2.5rem;
-    line-height:1.08; letter-spacing:-.02em; margin-bottom:.8rem;
-  }
+  .login-card h1{ font-family:'Fraunces',serif; font-weight:600; font-size:2.5rem; line-height:1.08; letter-spacing:-.02em; margin-bottom:.8rem; }
   .login-card h1 em{ font-style:italic; color:var(--cobalto); }
   .login-card p{ color:var(--tinta-60); margin-bottom:2rem; font-size:1.02rem; }
-  .g-btn{
-    display:inline-flex; align-items:center; gap:.7rem; margin:0 auto;
-    padding:.8rem 1.5rem; background:#fff; border:1px solid var(--linea);
-    border-radius:var(--radio); font-weight:600; box-shadow:var(--sombra);
-    transition:.15s;
-  }
+  .g-btn{ display:inline-flex; align-items:center; gap:.7rem; margin:0 auto; padding:.8rem 1.5rem; background:#fff; border:1px solid var(--linea); border-radius:var(--radio); font-weight:600; box-shadow:var(--sombra); transition:.15s; }
   .g-btn:hover{ border-color:var(--tinta-30); transform:translateY(-1px); }
 
-  /* ---------- Dashboard ---------- */
   .dash-head{ display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:2rem; gap:1rem; flex-wrap:wrap; }
   .dash-head h2{ font-family:'Fraunces',serif; font-weight:600; font-size:1.9rem; letter-spacing:-.02em; }
   .dash-head p{ color:var(--tinta-60); font-size:.95rem; margin-top:.2rem; }
-
   .lista{ display:flex; flex-direction:column; gap:.8rem; }
-  .tarjeta{
-    display:flex; align-items:center; justify-content:space-between; gap:1rem;
-    padding:1.15rem 1.3rem; background:#fff; border:1px solid var(--linea);
-    border-radius:var(--radio); box-shadow:var(--sombra); transition:.15s;
-  }
+  .tarjeta{ display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:1.15rem 1.3rem; background:#fff; border:1px solid var(--linea); border-radius:var(--radio); box-shadow:var(--sombra); transition:.15s; }
   .tarjeta:hover{ border-color:var(--tinta-30); }
   .tarjeta-info h3{ font-family:'Fraunces',serif; font-weight:600; font-size:1.18rem; letter-spacing:-.01em; }
-  .tarjeta-meta{ display:flex; align-items:center; gap:.6rem; margin-top:.3rem; font-size:.8rem; color:var(--tinta-60); }
-  .pill{
-    font-size:.68rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
-    padding:.18rem .5rem; border-radius:6px;
-  }
-  .pill-borrador{ background:#fbf2e0; color:#a06a16; }
-  .pill-publicado{ background:#e3f0e6; color:#2c7a45; }
+  .tarjeta-meta{ display:flex; align-items:center; gap:.6rem; margin-top:.3rem; font-size:.8rem; color:var(--tinta-60); flex-wrap:wrap; }
+  .pill{ font-size:.68rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase; padding:.18rem .5rem; border-radius:6px; }
+  .pill-borrador{ background:#fbf2e0; color:#a06a16; } .pill-publicado{ background:#e3f0e6; color:#2c7a45; }
   .tarjeta-acciones{ display:flex; gap:.35rem; flex-shrink:0; }
-
-  .vacio{
-    text-align:center; padding:4rem 1.5rem; border:1px dashed var(--linea);
-    border-radius:var(--radio); color:var(--tinta-60);
-  }
+  .vacio{ text-align:center; padding:4rem 1.5rem; border:1px dashed var(--linea); border-radius:var(--radio); color:var(--tinta-60); }
   .vacio b{ font-family:'Fraunces',serif; color:var(--tinta); display:block; font-size:1.2rem; margin-bottom:.4rem; }
 
-  /* ---------- Editor ---------- */
-  .editor-head{ display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; flex-wrap:wrap; }
-  .titulo-input{
-    flex:1; min-width:220px; font-family:'Fraunces',serif; font-weight:600;
-    font-size:1.9rem; letter-spacing:-.02em; border:none; background:transparent;
-    color:var(--tinta); outline:none; border-bottom:2px solid transparent; padding:.2rem 0;
-  }
+  .editor-head{ display:flex; align-items:center; gap:1rem; margin-bottom:1.2rem; flex-wrap:wrap; }
+  .titulo-input{ flex:1; min-width:220px; font-family:'Fraunces',serif; font-weight:600; font-size:1.9rem; letter-spacing:-.02em; border:none; background:transparent; color:var(--tinta); outline:none; border-bottom:2px solid transparent; padding:.2rem 0; }
   .titulo-input:focus{ border-bottom-color:var(--cobalto); }
   .titulo-input::placeholder{ color:var(--tinta-30); }
-
   .guardado{ font-size:.8rem; color:var(--tinta-60); display:flex; align-items:center; gap:.4rem; }
   .punto-guardado{ width:7px; height:7px; border-radius:50%; background:#2c7a45; }
   .punto-guardado.pendiente{ background:var(--ambar); }
 
-  .bloques{ display:flex; flex-direction:column; gap:.4rem; margin-bottom:1.5rem; }
+  .editor-opciones{ display:flex; gap:.8rem; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; padding-bottom:1.2rem; border-bottom:1px solid var(--linea); }
+  .selector{ display:flex; align-items:center; gap:.5rem; font-size:.85rem; color:var(--tinta-60); }
+  .selector select{ font-family:inherit; font-size:.85rem; padding:.4rem .6rem; border:1px solid var(--linea); border-radius:8px; background:#fff; color:var(--tinta); cursor:pointer; }
 
-  .bloque{
-    position:relative; padding:1rem 1.1rem; border:1px solid transparent;
-    border-radius:var(--radio); transition:.12s;
-  }
+  .bloques{ display:flex; flex-direction:column; gap:.4rem; margin-bottom:1.5rem; }
+  .bloque{ position:relative; padding:1rem 1.1rem; border:1px solid transparent; border-radius:var(--radio); transition:.12s; }
   .bloque:hover{ background:#fff; border-color:var(--linea); }
-  .bloque-barra{
-    display:flex; align-items:center; justify-content:space-between;
-    margin-bottom:.5rem; opacity:0; transition:.12s;
-  }
+  .bloque-barra{ display:flex; align-items:center; justify-content:space-between; margin-bottom:.5rem; opacity:0; transition:.12s; }
   .bloque:hover .bloque-barra{ opacity:1; }
   .bloque-tipo{ font-size:.68rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--tinta-30); }
   .bloque-ctrl{ display:flex; gap:.15rem; }
-  .ic-btn{
-    width:26px; height:26px; display:grid; place-items:center; border-radius:6px;
-    color:var(--tinta-60); font-size:.95rem;
-  }
+  .ic-btn{ width:26px; height:26px; display:grid; place-items:center; border-radius:6px; color:var(--tinta-60); font-size:.95rem; }
   .ic-btn:hover{ background:var(--papel-2); color:var(--tinta); }
   .ic-btn.peligro:hover{ background:#f7e9e5; color:var(--rojo); }
 
-  /* campos editables dentro de bloques */
-  .campo{
-    width:100%; border:none; background:transparent; outline:none;
-    font-family:inherit; color:var(--tinta); resize:none; line-height:1.6;
-  }
+  .campo{ width:100%; border:none; background:transparent; outline:none; font-family:inherit; color:var(--tinta); resize:none; line-height:1.6; }
   .campo-titulo{ font-family:'Fraunces',serif; font-weight:600; font-size:1.8rem; letter-spacing:-.02em; }
   .campo-subtitulo{ font-family:'Fraunces',serif; font-weight:600; font-size:1.3rem; }
   .campo-parrafo{ font-size:1.06rem; }
-  .campo-cita{
-    font-family:'Fraunces',serif; font-style:italic; font-size:1.4rem; line-height:1.4;
-    padding-left:1rem; border-left:3px solid var(--ambar);
-  }
+  .campo-cita{ font-family:'Fraunces',serif; font-style:italic; font-size:1.4rem; line-height:1.4; padding-left:1rem; border-left:3px solid var(--ambar); }
   .campo-url{ font-size:.9rem; color:var(--cobalto); border:1px solid var(--linea); padding:.5rem .7rem; border-radius:8px; background:#fff; }
+  .campo-txt{ font-size:.95rem; border:1px solid var(--linea); padding:.5rem .7rem; border-radius:8px; background:#fff; }
   .img-prev{ width:100%; border-radius:8px; margin-top:.6rem; display:block; }
   .img-pie{ font-size:.82rem; color:var(--tinta-60); margin-top:.4rem; font-style:italic; }
   .separador-vis{ height:1px; background:var(--linea); margin:.4rem 0; }
-  .separador-vis.punto{ background:none; text-align:center; color:var(--tinta-30); letter-spacing:.6em; height:auto; }
 
-  /* menú agregar bloque */
+  .form-bloque{ display:flex; flex-direction:column; gap:.55rem; }
+  .form-fila{ display:flex; gap:.5rem; align-items:flex-start; }
+  .form-fila .campo-txt{ flex:1; }
+  .form-etq{ font-size:.7rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--tinta-30); }
+  .mini-btn{ font-size:.8rem; color:var(--cobalto); font-weight:600; padding:.3rem .5rem; border-radius:6px; align-self:flex-start; }
+  .mini-btn:hover{ background:var(--papel-2); }
+  .datos-fila{ display:grid; grid-template-columns:1fr 90px 30px; gap:.4rem; align-items:center; }
+  .hint{ font-size:.78rem; color:var(--tinta-60); background:var(--papel-2); padding:.5rem .7rem; border-radius:8px; }
+
   .agregar{ position:relative; }
-  .menu-bloques{
-    display:grid; grid-template-columns:repeat(3,1fr); gap:.5rem;
-    padding:.8rem; background:#fff; border:1px solid var(--linea);
-    border-radius:var(--radio); box-shadow:var(--sombra); margin-top:.6rem;
-  }
-  .menu-bloques button{
-    display:flex; flex-direction:column; align-items:center; gap:.3rem;
-    padding:.8rem .4rem; border-radius:8px; font-size:.8rem; color:var(--tinta-60); font-weight:500;
-  }
+  .menu-bloques{ display:grid; grid-template-columns:repeat(4,1fr); gap:.5rem; padding:.8rem; background:#fff; border:1px solid var(--linea); border-radius:var(--radio); box-shadow:var(--sombra); margin-top:.6rem; }
+  .menu-bloques button{ display:flex; flex-direction:column; align-items:center; gap:.3rem; padding:.8rem .4rem; border-radius:8px; font-size:.78rem; color:var(--tinta-60); font-weight:500; }
   .menu-bloques button:hover{ background:var(--papel-2); color:var(--tinta); }
   .menu-bloques .ic{ font-size:1.2rem; }
 
-  .barra-fija{
-    position:fixed; left:0; right:0; bottom:0; z-index:20;
-    display:flex; align-items:center; justify-content:space-between;
-    padding:.9rem 1.5rem; background:rgba(250,248,244,.92);
-    backdrop-filter:blur(10px); border-top:1px solid var(--linea);
-  }
-  .barra-fija .max{ max-width:880px; margin:0 auto; width:100%; display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;}
-  
-  .controles-derecha{ display:flex; gap:.6rem; align-items:center; flex-wrap:wrap; }
-  .select-estilo{ border:1px solid var(--linea); padding:.38rem .5rem; border-radius:6px; background:#fff; font-size:.82rem; font-weight:500; color:var(--tinta); }
-
-  .toast{
-    position:fixed; bottom:5rem; left:50%; transform:translateX(-50%) translateY(20px);
-    background:var(--tinta); color:#fff; padding:.7rem 1.2rem; border-radius:99px;
-    font-size:.88rem; font-weight:500; opacity:0; pointer-events:none; transition:.25s; z-index:50;
-  }
+  .barra-fija{ position:fixed; left:0; right:0; bottom:0; z-index:20; display:flex; padding:.9rem 1.5rem; background:rgba(250,248,244,.92); backdrop-filter:blur(10px); border-top:1px solid var(--linea); }
+  .barra-fija .max{ max-width:880px; margin:0 auto; width:100%; display:flex; align-items:center; justify-content:space-between; gap:.6rem; }
+  .toast{ position:fixed; bottom:5rem; left:50%; transform:translateX(-50%) translateY(20px); background:var(--tinta); color:#fff; padding:.7rem 1.2rem; border-radius:99px; font-size:.88rem; font-weight:500; opacity:0; pointer-events:none; transition:.25s; z-index:120; }
   .toast.ver{ opacity:1; transform:translateX(-50%) translateY(0); }
-
   .oculto{ display:none !important; }
 
+  /* ===== LECTOR ===== */
+  #lector{ position:fixed; inset:0; z-index:100; overflow-y:auto; overflow-x:hidden; }
+  .lector-cerrar{ position:fixed; top:1rem; right:1rem; z-index:110; width:40px; height:40px; border-radius:50%; background:rgba(0,0,0,.5); color:#fff; font-size:1.3rem; display:grid; place-items:center; backdrop-filter:blur(6px); }
+  .lector-cerrar:hover{ background:rgba(0,0,0,.7); }
+  .progreso{ position:fixed; top:0; left:0; height:3px; background:var(--ambar); z-index:110; width:0; }
+
+  .rev{ opacity:0; transform:translateY(28px); transition:opacity .8s ease, transform .8s cubic-bezier(.16,1,.3,1); }
+  .rev.visible{ opacity:1; transform:none; }
+
+  .L-cont{ max-width:680px; margin:0 auto; padding:0 1.5rem; }
+  .L-parrafo{ margin:1.4rem auto; }
+  .L-cita{ margin:2.5rem auto; }
+  .L-img{ margin:2.5rem auto; }
+  .L-img img{ width:100%; border-radius:6px; display:block; }
+  .L-img figcaption{ font-size:.85rem; margin-top:.5rem; text-align:center; opacity:.7; font-style:italic; }
+  .L-sep{ width:60px; height:2px; margin:3rem auto; }
+  .L-graf{ max-width:760px; margin:3.5rem auto; padding:0 1.5rem; }
+  .L-graf-caja{ border-radius:12px; padding:1.5rem; }
+  .L-graf h4{ margin-bottom:1rem; font-size:1.15rem; }
+  .L-graf .fuente{ font-size:.78rem; margin-top:.8rem; opacity:.6; }
+  .L-graf canvas{ max-height:380px; }
+
+  .L-hero{ position:relative; height:100vh; min-height:560px; display:flex; align-items:flex-end; overflow:hidden; }
+  .L-hero-bg{ position:absolute; inset:-12% 0; background-size:cover; background-position:center; will-change:transform; }
+  .L-hero-velo{ position:absolute; inset:0; }
+  .L-hero-txt{ position:relative; z-index:2; padding:0 1.5rem 5rem; max-width:900px; margin:0 auto; width:100%; }
+  .L-hero h1{ font-size:clamp(2.4rem,6vw,4.5rem); line-height:1.04; letter-spacing:-.02em; }
+  .L-hero .sub{ font-size:clamp(1.1rem,2.4vw,1.5rem); margin-top:1rem; max-width:600px; opacity:.92; }
+  .L-hero .meta{ margin-top:1.5rem; font-size:.85rem; letter-spacing:.05em; opacity:.8; text-transform:uppercase; }
+  .L-scroll-hint{ position:absolute; bottom:1.5rem; left:50%; transform:translateX(-50%); z-index:2; font-size:1.5rem; opacity:.7; animation:flota 1.8s ease-in-out infinite; color:#fff; }
+  @keyframes flota{ 0%,100%{ transform:translateX(-50%) translateY(0); } 50%{ transform:translateX(-50%) translateY(8px); } }
+
+  .L-full{ position:relative; height:100vh; min-height:520px; display:flex; overflow:hidden; }
+  .L-full.pos-centro{ align-items:center; } .L-full.pos-abajo{ align-items:flex-end; }
+  .L-full-bg{ position:absolute; inset:-12% 0; background-size:cover; background-position:center; will-change:transform; }
+  .L-full-velo{ position:absolute; inset:0; }
+  .L-full-txt{ position:relative; z-index:2; max-width:760px; margin:0 auto; padding:0 1.5rem; }
+  .L-full.pos-abajo .L-full-txt{ padding-bottom:5rem; }
+  .L-full-txt p{ font-size:clamp(1.4rem,3.5vw,2.4rem); line-height:1.25; font-weight:500; }
+
+  .L-scrolly{ position:relative; }
+  .L-scrolly-media{ position:sticky; top:0; height:100vh; background-size:cover; background-position:center; }
+  .L-scrolly-velo{ position:absolute; inset:0; }
+  .L-scrolly-pasos{ position:relative; margin-top:-100vh; z-index:2; }
+  .L-scrolly-paso{ min-height:85vh; display:flex; align-items:center; justify-content:center; padding:2rem 1.5rem; }
+  .L-scrolly-paso > div{ max-width:520px; padding:1.5rem 1.8rem; border-radius:12px; font-size:1.25rem; line-height:1.5; }
+
+  /* TEMA EDITORIAL */
+  .tema-editorial{ background:#FAF8F4; color:#1c1c1a; }
+  .tema-editorial h1,.tema-editorial h4{ font-family:'Fraunces',serif; }
+  .tema-editorial .L-parrafo{ font-family:'Fraunces',serif; font-size:1.2rem; line-height:1.7; }
+  .tema-editorial .L-cita{ font-family:'Fraunces',serif; font-style:italic; font-size:1.9rem; line-height:1.35; text-align:center; color:#6b4e16; }
+  .tema-editorial .L-sep{ background:#E8A13A; }
+  .tema-editorial .L-hero-velo,.tema-editorial .L-full-velo{ background:linear-gradient(transparent 30%, rgba(20,18,12,.82)); }
+  .tema-editorial .L-hero h1,.tema-editorial .L-hero .sub,.tema-editorial .L-hero .meta,.tema-editorial .L-full-txt{ color:#fff; }
+  .tema-editorial .L-graf-caja{ background:#fff; border:1px solid #E4DFD5; }
+  .tema-editorial .L-scrolly-velo{ background:rgba(20,18,12,.35); }
+  .tema-editorial .L-scrolly-paso > div{ background:rgba(255,253,248,.94); color:#1c1c1a; font-family:'Fraunces',serif; }
+
+  /* TEMA REVISTA */
+  .tema-revista{ background:#ffffff; color:#0a0a0a; }
+  .tema-revista h1,.tema-revista .L-hero h1{ font-family:'Space Grotesk',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:-.01em; }
+  .tema-revista h4{ font-family:'Space Grotesk',sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:.02em; }
+  .tema-revista .L-parrafo{ font-size:1.12rem; line-height:1.65; }
+  .tema-revista .L-cita{ font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:2rem; line-height:1.2; color:#FF2D6B; text-align:left; padding-left:1.2rem; border-left:5px solid #FF2D6B; }
+  .tema-revista .L-sep{ background:#FF2D6B; width:80px; height:4px; }
+  .tema-revista .L-hero-velo,.tema-revista .L-full-velo{ background:linear-gradient(transparent 35%, rgba(0,0,0,.85)); }
+  .tema-revista .L-hero h1,.tema-revista .L-hero .sub,.tema-revista .L-hero .meta,.tema-revista .L-full-txt{ color:#fff; }
+  .tema-revista .L-full-txt p{ font-family:'Space Grotesk',sans-serif; font-weight:700; text-transform:uppercase; }
+  .tema-revista .L-graf-caja{ background:#0a0a0a; color:#fff; }
+  .tema-revista .L-scrolly-velo{ background:rgba(0,0,0,.4); }
+  .tema-revista .L-scrolly-paso > div{ background:#FF2D6B; color:#fff; font-family:'Space Grotesk',sans-serif; font-weight:600; }
+
+  /* TEMA CINE */
+  .tema-cine{ background:#0c0c0e; color:#e8e6e1; }
+  .tema-cine h1,.tema-cine .L-hero h1{ font-family:'Fraunces',serif; }
+  .tema-cine h4{ font-family:'Fraunces',serif; font-weight:600; }
+  .tema-cine .L-parrafo{ font-size:1.15rem; line-height:1.75; color:#cfccc5; }
+  .tema-cine .L-cita{ font-family:'Fraunces',serif; font-style:italic; font-size:2rem; line-height:1.35; text-align:center; color:#d9b370; }
+  .tema-cine .L-sep{ background:#d9b370; }
+  .tema-cine .L-hero-velo,.tema-cine .L-full-velo{ background:linear-gradient(transparent 25%, rgba(6,6,8,.92)); }
+  .tema-cine .L-hero h1,.tema-cine .L-hero .sub,.tema-cine .L-hero .meta,.tema-cine .L-full-txt{ color:#f4f1ea; }
+  .tema-cine .L-graf-caja{ background:#161618; border:1px solid #2a2a2e; }
+  .tema-cine .L-scrolly-velo{ background:rgba(6,6,8,.5); }
+  .tema-cine .L-scrolly-paso > div{ background:rgba(16,16,18,.86); color:#f4f1ea; font-family:'Fraunces',serif; border:1px solid rgba(217,179,112,.3); }
+
   @media (max-width:560px){
-    .menu-bloques{ grid-template-columns:repeat(2,1fr); }
+    .menu-bloques{ grid-template-columns:repeat(3,1fr); }
     .tarjeta{ flex-direction:column; align-items:flex-start; }
   }
 </style>
 </head>
 <body>
 
+<!-- LOGIN -->
 <div id="vista-login" class="login-wrap">
   <div class="login-card">
-    <div class="marca">
-      <div class="marca-punto"></div>
-      <div style="text-align:left"><b>Reportajes</b><span>Periodismo interactivo</span></div>
-    </div>
+    <div class="marca"><div class="marca-punto"></div><div style="text-align:left"><b>Reportajes</b><span>Periodismo interactivo</span></div></div>
     <h1 class="display">Tu historia,<br><em>en movimiento.</em></h1>
-    <p>Crea reportajes interactivos con scroll animado, gráficos y audio. Inicia sesión para empezar.</p>
+    <p>Crea reportajes interactivos con scroll animado, gráficos y portadas a pantalla completa. Inicia sesión para empezar.</p>
     <button id="btn-login" class="g-btn">
       <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84C6.71 7.3 9.14 5.38 12 5.38z"/></svg>
       Continuar con Google
@@ -248,27 +223,15 @@
   </div>
 </div>
 
+<!-- APP -->
 <div id="vista-app" class="oculto">
   <header class="barra">
-    <div class="marca">
-      <div class="marca-punto"></div>
-      <div><b>Reportajes</b><span>Periodismo interactivo</span></div>
-    </div>
-    <div class="usuario">
-      <small id="u-email"></small>
-      <img id="u-avatar" class="avatar" alt="" />
-      <button id="btn-logout" class="btn btn-fantasma btn-sm">Salir</button>
-    </div>
+    <div class="marca"><div class="marca-punto"></div><div><b>Reportajes</b><span>Periodismo interactivo</span></div></div>
+    <div class="usuario"><small id="u-email"></small><img id="u-avatar" class="avatar" alt="" /><button id="btn-logout" class="btn btn-fantasma btn-sm">Salir</button></div>
   </header>
 
   <main id="vista-dashboard" class="contenedor">
-    <div class="dash-head">
-      <div>
-        <h2>Mis reportajes</h2>
-        <p>Cada estudiante ve solo sus propios proyectos.</p>
-      </div>
-      <button id="btn-nuevo" class="btn btn-primario">＋ Nuevo reportaje</button>
-    </div>
+    <div class="dash-head"><div><h2>Mis reportajes</h2><p>Cada estudiante ve solo sus propios proyectos.</p></div><button id="btn-nuevo" class="btn btn-primario">＋ Nuevo reportaje</button></div>
     <div id="lista-reportajes" class="lista"></div>
   </main>
 
@@ -278,20 +241,26 @@
       <input id="titulo-reportaje" class="titulo-input" placeholder="Título del reportaje…" />
       <span class="guardado"><span id="punto-guardado" class="punto-guardado"></span><span id="texto-guardado">Guardado</span></span>
     </div>
-
+    <div class="editor-opciones">
+      <div class="selector"><span>🎨 Estilo visual</span>
+        <select id="tema"><option value="editorial">Editorial (serif, clásico)</option><option value="revista">Revista (bold, alto contraste)</option><option value="cine">Cine (oscuro, dramático)</option></select>
+      </div>
+      <button id="btn-preview" class="btn btn-fantasma btn-sm">👁 Vista previa</button>
+    </div>
     <div id="bloques" class="bloques"></div>
-
     <div class="agregar">
       <button id="btn-agregar" class="btn btn-fantasma">＋ Agregar bloque</button>
       <div id="menu-bloques" class="menu-bloques oculto">
+        <button data-tipo="hero"><span class="ic">🎬</span>Portada</button>
         <button data-tipo="titulo"><span class="ic">𝐇</span>Título</button>
         <button data-tipo="subtitulo"><span class="ic">𝐡</span>Subtítulo</button>
         <button data-tipo="parrafo"><span class="ic">¶</span>Párrafo</button>
-        <button data-tipo="imagen"><span class="ic">🖼</span>Imagen</button>
         <button data-tipo="cita"><span class="ic">❝</span>Cita</button>
-        <button data-tipo="separador"><span class="ic">⎯</span>Separador</button>
-        <button data-tipo="audio"><span class="ic">🎵</span>Audio</button>
+        <button data-tipo="imagen"><span class="ic">🖼</span>Imagen</button>
+        <button data-tipo="imagenFull"><span class="ic">🌄</span>Imagen full</button>
         <button data-tipo="grafico"><span class="ic">📊</span>Gráfico</button>
+        <button data-tipo="scrolly"><span class="ic">📜</span>Scrolly</button>
+        <button data-tipo="separador"><span class="ic">⎯</span>Separador</button>
       </div>
     </div>
   </main>
@@ -299,34 +268,29 @@
   <div id="barra-editor" class="barra-fija oculto">
     <div class="max">
       <button id="btn-eliminar-rep" class="btn btn-peligro btn-sm">🗑 Eliminar</button>
-      <div class="controles-derecha">
-        <select id="select-plantilla" class="select-estilo">
-          <option value="editorial">✨ Editorial Cálido</option>
-          <option value="moderno">📱 Minimal Moderno</option>
-          <option value="oscuro">🌑 Nocturno Oscuro</option>
-        </select>
-        <button id="btn-publicar" class="btn btn-fantasma btn-sm">📦 Borrador</button>
-        <button id="btn-preview" class="btn btn-fantasma btn-sm">👁 Ver Preview</button>
+      <div style="display:flex; gap:.6rem; align-items:center;">
         <span style="font-size:.82rem; color:var(--tinta-60);" id="contador-bloques"></span>
-        <button id="btn-guardar" class="btn btn-primario btn-sm">Guardar ahora</button>
+        <button id="btn-preview-2" class="btn btn-fantasma btn-sm">👁 Vista previa</button>
+        <button id="btn-guardar" class="btn btn-primario btn-sm">Guardar</button>
       </div>
     </div>
   </div>
+</div>
+
+<!-- LECTOR -->
+<div id="lector" class="oculto">
+  <div class="progreso" id="progreso"></div>
+  <button class="lector-cerrar" id="btn-cerrar-lector">✕</button>
+  <div id="lector-contenido"></div>
 </div>
 
 <div id="toast" class="toast"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-  getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {
-  getFirestore, collection, addDoc, getDoc, doc, updateDoc, deleteDoc,
-  query, where, orderBy, getDocs, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDoc, doc, updateDoc, deleteDoc, query, where, orderBy, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* ====== 1) TU CONFIGURACIÓN DE FIREBASE ====== */
 const firebaseConfig = {
   apiKey: "AIzaSyBr5OcwH9jKdoBVr6Dp_hJto5oNHEbJGtI",
   authDomain: "ludo-preguntas.firebaseapp.com",
@@ -336,345 +300,383 @@ const firebaseConfig = {
   messagingSenderId: "154849132864",
   appId: "1:154849132864:web:93146bf6ad58833a58faa5"
 };
-
-const app  = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db   = getFirestore(app);
+const db = getFirestore(app);
 const proveedor = new GoogleAuthProvider();
 
-/* ====== 2) ESTADO ====== */
-let usuario = null;
-let reportajeActual = null;   // { id, titulo, bloques: [], publicado: false, plantilla: 'editorial' }
-let timerGuardado = null;
-let cambiosPendientes = false;
+let usuario=null, reportajeActual=null, timerGuardado=null, cambiosPendientes=false;
+let graficosPendientes={};
 
-/* ====== 3) HELPERS DE UI ====== */
 const $ = id => document.getElementById(id);
 const mostrar = (el,si=true) => el.classList.toggle('oculto', !si);
+function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('ver'); setTimeout(()=>t.classList.remove('ver'),2200); }
+function fecha(ts){ if(!ts) return 'Sin guardar'; const d=ts.toDate?ts.toDate():new Date(ts); return d.toLocaleDateString('es-CL',{day:'numeric',month:'short',year:'numeric'}); }
+function escapar(s){ return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function uid(){ return Math.random().toString(36).slice(2,9); }
 
-function toast(msg){
-  const t = $('toast'); t.textContent = msg; t.classList.add('ver');
-  setTimeout(()=>t.classList.remove('ver'), 2200);
-}
+/* AUTH */
+$('btn-login').addEventListener('click', async ()=>{ try{ await signInWithPopup(auth,proveedor); }catch(e){ const x=$('login-error'); x.textContent='No se pudo iniciar sesión: '+e.code; mostrar(x,true); console.error(e); } });
+$('btn-logout').addEventListener('click', ()=>signOut(auth));
+onAuthStateChanged(auth, u=>{ usuario=u; if(u){ mostrar($('vista-login'),false); mostrar($('vista-app'),true); $('u-email').textContent=u.email; $('u-avatar').src=u.photoURL||''; irADashboard(); } else { mostrar($('vista-login'),true); mostrar($('vista-app'),false); } });
 
-function fecha(ts){
-  if(!ts) return 'Sin guardar';
-  const d = ts.toDate ? ts.toDate() : new Date(ts);
-  return d.toLocaleDateString('es-CL', {day:'numeric', month:'short', year:'numeric'});
-}
-
-/* ====== 4) AUTENTICACIÓN ====== */
-$('btn-login').addEventListener('click', async () => {
-  try { await signInWithPopup(auth, proveedor); }
-  catch(e){
-    const err = $('login-error');
-    err.textContent = 'No se pudo iniciar sesión: ' + e.code;
-    mostrar(err, true);
-    console.error(e);
-  }
-});
-
-$('btn-logout').addEventListener('click', () => signOut(auth));
-
-onAuthStateChanged(auth, async (u) => {
-  usuario = u;
-  if(u){
-    mostrar($('vista-login'), false);
-    mostrar($('vista-app'), true);
-    $('u-email').textContent  = u.email;
-    $('u-avatar').src = u.photoURL || '';
-    irADashboard();
-  } else {
-    mostrar($('vista-login'), true);
-    mostrar($('vista-app'), false);
-  }
-});
-
-/* ====== 5) DASHBOARD: listar reportajes del usuario ====== */
-async function irADashboard(){
-  mostrar($('vista-editor'), false);
-  mostrar($('barra-editor'), false);
-  mostrar($('vista-dashboard'), true);
-  await cargarReportajes();
-}
-
+/* DASHBOARD */
+async function irADashboard(){ mostrar($('vista-editor'),false); mostrar($('barra-editor'),false); mostrar($('vista-dashboard'),true); await cargarReportajes(); }
 async function cargarReportajes(){
-  const cont = $('lista-reportajes');
-  cont.innerHTML = '<p style="color:var(--tinta-60)">Cargando…</p>';
+  const cont=$('lista-reportajes'); cont.innerHTML='<p style="color:var(--tinta-60)">Cargando…</p>';
   try{
-    const q = query(
-      collection(db, 'reportajes'),
-      where('ownerUid', '==', usuario.uid),
-      orderBy('updatedAt', 'desc')
-    );
-    const snap = await getDocs(q);
-    if(snap.empty){
-      cont.innerHTML = `<div class="vacio"><b>Aún no tienes reportajes</b>
-        Crea el primero con el botón “Nuevo reportaje”.</div>`;
-      return;
-    }
-    cont.innerHTML = '';
-    snap.forEach(d => {
-      const r = d.data();
-      const nb = (r.bloques||[]).length;
-      const div = document.createElement('div');
-      div.className = 'tarjeta';
-      div.innerHTML = `
-        <div class="tarjeta-info">
-          <h3>${escapar(r.titulo) || 'Sin título'}</h3>
-          <div class="tarjeta-meta">
-            <span class="pill ${r.publicado ? 'pill-publicado':'pill-borrador'}">
-              ${r.publicado ? 'Publicado':'Borrador'}</span>
-            <span>${nb} bloque${nb===1?'':'s'}</span>
-            <span>· Editado ${fecha(r.updatedAt)}</span>
-          </div>
-        </div>
-        <div class="tarjeta-acciones">
-          <button class="btn btn-fantasma btn-sm" data-abrir="${d.id}">Editar</button>
-        </div>`;
+    const q=query(collection(db,'reportajes'),where('ownerUid','==',usuario.uid),orderBy('updatedAt','desc'));
+    const snap=await getDocs(q);
+    if(snap.empty){ cont.innerHTML='<div class="vacio"><b>Aún no tienes reportajes</b>Crea el primero con el botón “Nuevo reportaje”.</div>'; return; }
+    cont.innerHTML='';
+    snap.forEach(d=>{ const r=d.data(); const nb=(r.bloques||[]).length;
+      const div=document.createElement('div'); div.className='tarjeta';
+      div.innerHTML=`<div class="tarjeta-info"><h3>${escapar(r.titulo)||'Sin título'}</h3>
+        <div class="tarjeta-meta"><span class="pill ${r.publicado?'pill-publicado':'pill-borrador'}">${r.publicado?'Publicado':'Borrador'}</span>
+        <span>${nb} bloque${nb===1?'':'s'}</span><span>· ${r.tema||'editorial'}</span><span>· Editado ${fecha(r.updatedAt)}</span></div></div>
+        <div class="tarjeta-acciones"><button class="btn btn-fantasma btn-sm" data-abrir="${d.id}">Editar</button></div>`;
       cont.appendChild(div);
     });
-    cont.querySelectorAll('[data-abrir]').forEach(b =>
-      b.addEventListener('click', () => abrirReportaje(b.dataset.abrir)));
-  }catch(e){
-    cont.innerHTML = `<div class="vacio"><b>No se pudo cargar</b>
-      ${e.code === 'failed-precondition'
-        ? 'Falta crear un índice en Firestore. Revisa la consola del navegador: aparece un enlace para crearlo con un clic.'
-        : escapar(e.message)}</div>`;
-    console.error(e);
-  }
+    cont.querySelectorAll('[data-abrir]').forEach(b=>b.addEventListener('click',()=>abrirReportaje(b.dataset.abrir)));
+  }catch(e){ cont.innerHTML=`<div class="vacio"><b>No se pudo cargar</b>${e.code==='failed-precondition'?'Falta crear un índice en Firestore. Revisa la consola (F12): aparece un enlace para crearlo con un clic.':escapar(e.message)}</div>`; console.error(e); }
 }
 
-/* ====== 6) CREAR / ABRIR / GUARDAR ====== */
-$('btn-nuevo').addEventListener('click', async () => {
-  try{
-    const ref = await addDoc(collection(db,'reportajes'), {
-      ownerUid: usuario.uid,
-      ownerEmail: usuario.email,
-      titulo: '',
-      bloques: [],
-      publicado: false,
-      plantilla: 'editorial',
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    });
-    abrirReportaje(ref.id);
-  }catch(e){ toast('Error al crear: ' + e.code); console.error(e); }
+/* CREAR / ABRIR / GUARDAR */
+$('btn-nuevo').addEventListener('click', async ()=>{
+  try{ const ref=await addDoc(collection(db,'reportajes'),{ ownerUid:usuario.uid, ownerEmail:usuario.email, titulo:'', tema:'editorial', bloques:[], publicado:false, createdAt:serverTimestamp(), updatedAt:serverTimestamp() }); abrirReportaje(ref.id); }
+  catch(e){ toast('Error al crear: '+e.code); console.error(e); }
 });
-
 async function abrirReportaje(id){
-  const snap = await getDoc(doc(db,'reportajes',id));
-  if(!snap.exists()){ toast('Reportaje no encontrado'); return; }
-  const d = snap.data();
-  reportajeActual = { 
-    id, 
-    titulo: d.titulo||'', 
-    bloques: d.bloques||[], 
-    publicado: d.publicado||false, 
-    plantilla: d.plantilla||'editorial' 
-  };
-  $('titulo-reportaje').value = reportajeActual.titulo;
-  $('select-plantilla').value = reportajeActual.plantilla;
-  refrescarEstadoPublicacion();
+  const snap=await getDoc(doc(db,'reportajes',id)); if(!snap.exists()){ toast('No encontrado'); return; }
+  const d=snap.data();
+  reportajeActual={ id, titulo:d.titulo||'', tema:d.tema||'editorial', bloques:d.bloques||[] };
+  $('titulo-reportaje').value=reportajeActual.titulo;
+  $('tema').value=reportajeActual.tema;
   renderBloques();
-  mostrar($('vista-dashboard'), false);
-  mostrar($('vista-editor'), true);
-  mostrar($('barra-editor'), true);
+  mostrar($('vista-dashboard'),false); mostrar($('vista-editor'),true); mostrar($('barra-editor'),true);
   marcarGuardado(true);
 }
-
-$('btn-volver').addEventListener('click', async () => {
-  if(cambiosPendientes) await guardar();
-  irADashboard();
-});
-
+$('btn-volver').addEventListener('click', async ()=>{ if(cambiosPendientes) await guardar(); irADashboard(); });
 async function guardar(){
   if(!reportajeActual) return;
-  reportajeActual.titulo = $('titulo-reportaje').value;
-  try{
-    await updateDoc(doc(db,'reportajes',reportajeActual.id), {
-      titulo: reportajeActual.titulo,
-      bloques: reportajeActual.bloques,
-      publicado: reportajeActual.publicado,
-      plantilla: reportajeActual.plantilla,
-      updatedAt: serverTimestamp()
-    });
-    marcarGuardado(true);
-  }catch(e){ toast('Error al guardar: ' + e.code); console.error(e); }
+  reportajeActual.titulo=$('titulo-reportaje').value;
+  try{ await updateDoc(doc(db,'reportajes',reportajeActual.id),{ titulo:reportajeActual.titulo, tema:reportajeActual.tema, bloques:reportajeActual.bloques, updatedAt:serverTimestamp() }); marcarGuardado(true); }
+  catch(e){ toast('Error al guardar: '+e.code); console.error(e); }
 }
-
-$('btn-guardar').addEventListener('click', () => { guardar(); toast('Guardado'); });
-
-function programarGuardado(){
-  marcarGuardado(false);
-  clearTimeout(timerGuardado);
-  timerGuardado = setTimeout(guardar, 1200);
-}
-
-function marcarGuardado(ok){
-  cambiosPendientes = !ok;
-  $('punto-guardado').classList.toggle('pendiente', !ok);
-  $('texto-guardado').textContent = ok ? 'Guardado' : 'Guardando…';
-}
-
+$('btn-guardar').addEventListener('click', ()=>{ guardar(); toast('Guardado'); });
+function programarGuardado(){ marcarGuardado(false); clearTimeout(timerGuardado); timerGuardado=setTimeout(guardar,1200); }
+function marcarGuardado(ok){ cambiosPendientes=!ok; $('punto-guardado').classList.toggle('pendiente',!ok); $('texto-guardado').textContent=ok?'Guardado':'Guardando…'; }
 $('titulo-reportaje').addEventListener('input', programarGuardado);
+$('tema').addEventListener('change', e=>{ reportajeActual.tema=e.target.value; programarGuardado(); });
 
-/* Lógica Controles Semana 3 */
-$('select-plantilla').addEventListener('change', e => {
-  reportajeActual.plantilla = e.target.value;
-  programarGuardado();
-});
+/* ELIMINAR */
+$('btn-eliminar-rep').addEventListener('click', async ()=>{ if(!confirm('¿Eliminar este reportaje? No se puede deshacer.')) return; await deleteDoc(doc(db,'reportajes',reportajeActual.id)); toast('Eliminado'); irADashboard(); });
 
-$('btn-publicar').addEventListener('click', () => {
-  reportajeActual.publicado = !reportajeActual.publicado;
-  refrescarEstadoPublicacion();
-  programarGuardado();
-  toast(reportajeActual.publicado ? '¡Reportaje Publicado!' : 'Cambiado a Borrador');
-});
-
-function refrescarEstadoPublicacion() {
-  const pub = reportajeActual.publicado;
-  $('btn-publicar').textContent = pub ? '🚀 Publicado' : '📦 Borrador';
-  $('btn-publicar').classList.toggle('btn-primario', pub);
-}
-
-$('btn-preview').addEventListener('click', () => {
-  if(reportajeActual) window.open(`reportaje.html?id=${reportajeActual.id}`, '_blank');
-});
-
-
-/* ====== 7) ELIMINAR ====== */
-$('btn-eliminar-rep').addEventListener('click', async () => {
-  if(!confirm('¿Eliminar este reportaje? No se puede deshacer.')) return;
-  await deleteDoc(doc(db,'reportajes',reportajeActual.id));
-  toast('Reportaje eliminado');
-  irADashboard();
-});
-
-/* ====== 8) BLOQUES ====== */
+/* ===== BLOQUES — modelo + editor ===== */
 const PLANTILLAS = {
+  hero:      { titulo:'', subtitulo:'', autor:'', fecha:'', url:'' },
   titulo:    { texto:'' },
   subtitulo: { texto:'' },
   parrafo:   { texto:'' },
   cita:      { texto:'' },
   imagen:    { url:'', pie:'' },
-  separador: { estilo:'linea' },
-  audio:     { url:'', pie:'' },
-  grafico:   { embed:'', pie:'' }
+  imagenFull:{ url:'', texto:'', posicion:'abajo' },
+  grafico:   { tipoG:'barras', titulo:'', fuente:'', datos:[{etiqueta:'',valor:0},{etiqueta:'',valor:0}] },
+  scrolly:   { url:'', pasos:[''] },
+  separador: { estilo:'linea' }
 };
-const NOMBRES = { 
-  titulo:'Título', subtitulo:'Subtítulo', parrafo:'Párrafo', 
-  cita:'Cita', imagen:'Imagen', separador:'Separador',
-  audio:'Audio', grafico:'Gráfico' 
-};
+const NOMBRES = { hero:'Portada', titulo:'Título', subtitulo:'Subtítulo', parrafo:'Párrafo', cita:'Cita', imagen:'Imagen', imagenFull:'Imagen full', grafico:'Gráfico', scrolly:'Scrolly', separador:'Separador' };
 
-function uid(){ return Math.random().toString(36).slice(2,9); }
-
-$('btn-agregar').addEventListener('click', () => mostrar($('menu-bloques'), $('menu-bloques').classList.contains('oculto')));
-document.querySelectorAll('#menu-bloques button').forEach(b =>
-  b.addEventListener('click', () => { agregarBloque(b.dataset.tipo); mostrar($('menu-bloques'), false); }));
-
-function agregarBloque(tipo){
-  reportajeActual.bloques.push({ id:uid(), tipo, ...structuredClone(PLANTILLAS[tipo]) });
-  renderBloques(); programarGuardado();
-}
+$('btn-agregar').addEventListener('click', ()=>mostrar($('menu-bloques'),$('menu-bloques').classList.contains('oculto')));
+document.querySelectorAll('#menu-bloques button').forEach(b=>b.addEventListener('click',()=>{ agregarBloque(b.dataset.tipo); mostrar($('menu-bloques'),false); }));
+function agregarBloque(tipo){ reportajeActual.bloques.push({ id:uid(), tipo, ...structuredClone(PLANTILLAS[tipo]) }); renderBloques(); programarGuardado(); }
 
 function renderBloques(){
-  const cont = $('bloques');
-  cont.innerHTML = '';
-  reportajeActual.bloques.forEach((b, i) => cont.appendChild(crearBloque(b, i)));
-  $('contador-bloques').textContent =
-    reportajeActual.bloques.length + ' bloque' + (reportajeActual.bloques.length===1?'':'s');
+  const cont=$('bloques'); cont.innerHTML='';
+  reportajeActual.bloques.forEach((b,i)=>cont.appendChild(crearBloque(b,i)));
+  $('contador-bloques').textContent=reportajeActual.bloques.length+' bloque'+(reportajeActual.bloques.length===1?'':'s');
 }
+function autoAlto(t){ t.style.height='auto'; t.style.height=t.scrollHeight+'px'; }
+function input(clase,valor,ph){ const e=document.createElement('input'); e.className=clase; e.value=valor||''; e.placeholder=ph||''; return e; }
+function textarea(clase,valor,ph){ const e=document.createElement('textarea'); e.className=clase; e.value=valor||''; e.placeholder=ph||''; return e; }
+function etiqueta(txt){ const s=document.createElement('div'); s.className='form-etq'; s.textContent=txt; return s; }
 
-function crearBloque(b, i){
-  const wrap = document.createElement('div');
-  wrap.className = 'bloque';
-
-  const barra = document.createElement('div');
-  barra.className = 'bloque-barra';
-  barra.innerHTML = `<span class="bloque-tipo">${NOMBRES[b.tipo]}</span>
-    <div class="bloque-ctrl">
-      <button class="ic-btn" data-sube title="Subir">↑</button>
-      <button class="ic-btn" data-baja title="Bajar">↓</button>
-      <button class="ic-btn peligro" data-borra title="Eliminar">✕</button>
-    </div>`;
+function crearBloque(b,i){
+  const wrap=document.createElement('div'); wrap.className='bloque';
+  const barra=document.createElement('div'); barra.className='bloque-barra';
+  barra.innerHTML=`<span class="bloque-tipo">${NOMBRES[b.tipo]}</span>
+    <div class="bloque-ctrl"><button class="ic-btn" data-sube>↑</button><button class="ic-btn" data-baja>↓</button><button class="ic-btn peligro" data-borra>✕</button></div>`;
   wrap.appendChild(barra);
-
-  let cuerpo;
-  if(b.tipo === 'separador'){
-    cuerpo = document.createElement('div');
-    cuerpo.className = 'separador-vis';
-  } else if(b.tipo === 'imagen'){
-    cuerpo = document.createElement('div');
-    const inUrl = campo('input','campo campo-url', b.url, 'Pega la URL de una imagen…');
-    inUrl.addEventListener('input', e => { b.url = e.target.value; refrescarImg(); programarGuardado(); });
-    const prev = document.createElement('img'); prev.className='img-prev';
-    const inPie = campo('input','campo img-pie', b.pie, 'Pie de foto (opcional)');
-    inPie.addEventListener('input', e => { b.pie = e.target.value; programarGuardado(); });
-    function refrescarImg(){ prev.src = b.url || ''; mostrar(prev, !!b.url); }
-    cuerpo.append(inUrl, prev, inPie); refrescarImg();
-  } else if(b.tipo === 'audio'){
-    cuerpo = document.createElement('div');
-    const inUrl = campo('input','campo campo-url', b.url, 'Pega la URL de un archivo de audio (.mp3)…');
-    inUrl.addEventListener('input', e => { b.url = e.target.value; refrescarAudio(); programarGuardado(); });
-    const prev = document.createElement('audio'); prev.controls = true; prev.style.width = '100%'; prev.style.marginTop = '.6rem';
-    const inPie = campo('input','campo img-pie', b.pie, 'Descripción del audio (opcional)');
-    inPie.addEventListener('input', e => { b.pie = e.target.value; programarGuardado(); });
-    function refrescarAudio(){ prev.src = b.url || ''; mostrar(prev, !!b.url); }
-    cuerpo.append(inUrl, prev, inPie); refrescarAudio();
-  } else if(b.tipo === 'grafico'){
-    cuerpo = document.createElement('div');
-    const inEmbed = campo('textarea', 'campo campo-url', b.embed, 'Pega el código iframe de Datawrapper, Flourish, Infogram…');
-    autoAlto(inEmbed);
-    inEmbed.addEventListener('input', e => { b.embed = e.target.value; autoAlto(inEmbed); refrescarGraf(); programarGuardado(); });
-    const prev = document.createElement('div'); 
-    prev.style.cssText = "margin-top:.6rem; padding:1rem; background:var(--papel-2); border-radius:8px; overflow:hidden;";
-    const inPie = campo('input','campo img-pie', b.pie, 'Fuente o pie del gráfico (opcional)');
-    inPie.addEventListener('input', e => { b.pie = e.target.value; programarGuardado(); });
-    function refrescarGraf(){ 
-      prev.innerHTML = b.embed || '<div style="text-align:center; color:var(--tinta-60); font-size:.85rem;">Vista previa del gráfico (iframe)</div>'; 
-    }
-    cuerpo.append(inEmbed, prev, inPie); refrescarGraf();
-  } else {
-    const clase = { titulo:'campo-titulo', subtitulo:'campo-subtitulo', parrafo:'campo-parrafo', cita:'campo-cita' }[b.tipo];
-    const ph = { titulo:'Escribe el título…', subtitulo:'Escribe el subtítulo…', parrafo:'Escribe el párrafo…', cita:'Escribe la cita…' }[b.tipo];
-    cuerpo = campo('textarea', 'campo '+clase, b.texto, ph);
-    autoAlto(cuerpo);
-    cuerpo.addEventListener('input', e => { b.texto = e.target.value; autoAlto(cuerpo); programarGuardado(); });
-  }
-  wrap.appendChild(cuerpo);
-
-  barra.querySelector('[data-sube]').addEventListener('click', () => mover(i,-1));
-  barra.querySelector('[data-baja]').addEventListener('click', () => mover(i, 1));
-  barra.querySelector('[data-borra]').addEventListener('click', () => {
-    reportajeActual.bloques.splice(i,1); renderBloques(); programarGuardado();
-  });
+  wrap.appendChild(cuerpoBloque(b));
+  barra.querySelector('[data-sube]').addEventListener('click',()=>mover(i,-1));
+  barra.querySelector('[data-baja]').addEventListener('click',()=>mover(i,1));
+  barra.querySelector('[data-borra]').addEventListener('click',()=>{ reportajeActual.bloques.splice(i,1); renderBloques(); programarGuardado(); });
   return wrap;
 }
 
-function campo(tag, clase, valor, ph){
-  const el = document.createElement(tag);
-  el.className = clase; el.placeholder = ph;
-  el.value = valor||'';
-  return el;
+function cuerpoBloque(b){
+  if(['titulo','subtitulo','parrafo','cita'].includes(b.tipo)){
+    const clase={titulo:'campo-titulo',subtitulo:'campo-subtitulo',parrafo:'campo-parrafo',cita:'campo-cita'}[b.tipo];
+    const ph={titulo:'Escribe el título…',subtitulo:'Escribe el subtítulo…',parrafo:'Escribe el párrafo…',cita:'Escribe la cita…'}[b.tipo];
+    const t=textarea('campo '+clase,b.texto,ph); setTimeout(()=>autoAlto(t),0);
+    t.addEventListener('input',e=>{ b.texto=e.target.value; autoAlto(t); programarGuardado(); });
+    return t;
+  }
+  if(b.tipo==='separador'){ const d=document.createElement('div'); d.className='separador-vis'; return d; }
+
+  if(b.tipo==='imagen'){
+    const box=document.createElement('div'); box.className='form-bloque';
+    const u=input('campo campo-url',b.url,'Pega la URL de una imagen…');
+    const prev=document.createElement('img'); prev.className='img-prev';
+    const pie=input('campo img-pie',b.pie,'Pie de foto (opcional)');
+    const refr=()=>{ prev.src=b.url; mostrar(prev,!!b.url); };
+    u.addEventListener('input',e=>{ b.url=e.target.value; refr(); programarGuardado(); });
+    pie.addEventListener('input',e=>{ b.pie=e.target.value; programarGuardado(); });
+    box.append(u,prev,pie); refr(); return box;
+  }
+
+  if(b.tipo==='hero'){
+    const box=document.createElement('div'); box.className='form-bloque';
+    const t=input('campo campo-titulo',b.titulo,'Título principal de portada…');
+    const s=input('campo campo-subtitulo',b.subtitulo,'Bajada / subtítulo…');
+    const fila=document.createElement('div'); fila.className='form-fila';
+    const au=input('campo campo-txt',b.autor,'Autor/a'); const fe=input('campo campo-txt',b.fecha,'Fecha (ej: Junio 2026)');
+    fila.append(au,fe);
+    const u=input('campo campo-url',b.url,'URL de la imagen de fondo…');
+    const prev=document.createElement('img'); prev.className='img-prev';
+    const refr=()=>{ prev.src=b.url; mostrar(prev,!!b.url); };
+    t.addEventListener('input',e=>{ b.titulo=e.target.value; programarGuardado(); });
+    s.addEventListener('input',e=>{ b.subtitulo=e.target.value; programarGuardado(); });
+    au.addEventListener('input',e=>{ b.autor=e.target.value; programarGuardado(); });
+    fe.addEventListener('input',e=>{ b.fecha=e.target.value; programarGuardado(); });
+    u.addEventListener('input',e=>{ b.url=e.target.value; refr(); programarGuardado(); });
+    box.append(t,s,fila,etiqueta('Imagen de fondo'),u,prev); refr(); return box;
+  }
+
+  if(b.tipo==='imagenFull'){
+    const box=document.createElement('div'); box.className='form-bloque';
+    const u=input('campo campo-url',b.url,'URL de la imagen de fondo…');
+    const prev=document.createElement('img'); prev.className='img-prev';
+    const txt=textarea('campo campo-txt',b.texto,'Texto que va encima de la imagen…'); setTimeout(()=>autoAlto(txt),0);
+    const sel=document.createElement('select'); sel.className='campo campo-txt';
+    sel.innerHTML='<option value="abajo">Texto abajo</option><option value="centro">Texto centrado</option>';
+    sel.value=b.posicion;
+    const refr=()=>{ prev.src=b.url; mostrar(prev,!!b.url); };
+    u.addEventListener('input',e=>{ b.url=e.target.value; refr(); programarGuardado(); });
+    txt.addEventListener('input',e=>{ b.texto=e.target.value; autoAlto(txt); programarGuardado(); });
+    sel.addEventListener('change',e=>{ b.posicion=e.target.value; programarGuardado(); });
+    box.append(u,prev,etiqueta('Texto superpuesto'),txt,sel); refr(); return box;
+  }
+
+  if(b.tipo==='grafico'){
+    const box=document.createElement('div'); box.className='form-bloque';
+    const sel=document.createElement('select'); sel.className='campo campo-txt';
+    sel.innerHTML='<option value="barras">Barras</option><option value="lineas">Líneas</option><option value="circular">Circular (torta)</option>';
+    sel.value=b.tipoG||'barras';
+    const tit=input('campo campo-txt',b.titulo,'Título del gráfico…');
+    const datosWrap=document.createElement('div'); datosWrap.className='form-bloque';
+    const pintarDatos=()=>{
+      datosWrap.innerHTML=''; datosWrap.appendChild(etiqueta('Datos (etiqueta y valor)'));
+      b.datos.forEach((d,idx)=>{
+        const fila=document.createElement('div'); fila.className='datos-fila';
+        const e=input('campo campo-txt',d.etiqueta,'Etiqueta'); const v=input('campo campo-txt',d.valor,'Valor'); v.type='number';
+        const del=document.createElement('button'); del.className='ic-btn peligro'; del.textContent='✕';
+        e.addEventListener('input',ev=>{ d.etiqueta=ev.target.value; programarGuardado(); });
+        v.addEventListener('input',ev=>{ d.valor=parseFloat(ev.target.value)||0; programarGuardado(); });
+        del.addEventListener('click',()=>{ b.datos.splice(idx,1); pintarDatos(); programarGuardado(); });
+        fila.append(e,v,del); datosWrap.appendChild(fila);
+      });
+      const add=document.createElement('button'); add.className='mini-btn'; add.textContent='＋ Agregar dato';
+      add.addEventListener('click',()=>{ b.datos.push({etiqueta:'',valor:0}); pintarDatos(); programarGuardado(); });
+      datosWrap.appendChild(add);
+    };
+    const fuente=input('campo campo-txt',b.fuente,'Fuente de los datos (ej: INE, 2025)');
+    sel.addEventListener('change',e=>{ b.tipoG=e.target.value; programarGuardado(); });
+    tit.addEventListener('input',e=>{ b.titulo=e.target.value; programarGuardado(); });
+    fuente.addEventListener('input',e=>{ b.fuente=e.target.value; programarGuardado(); });
+    box.append(etiqueta('Tipo de gráfico'),sel,tit); pintarDatos(); box.append(datosWrap,etiqueta('Fuente'),fuente);
+    return box;
+  }
+
+  if(b.tipo==='scrolly'){
+    const box=document.createElement('div'); box.className='form-bloque';
+    const hint=document.createElement('div'); hint.className='hint'; hint.textContent='La imagen queda fija mientras el lector pasa por cada paso de texto. Ideal para mostrar algo y narrar sobre ello.';
+    const u=input('campo campo-url',b.url,'URL de la imagen fija de fondo…');
+    const prev=document.createElement('img'); prev.className='img-prev';
+    const refr=()=>{ prev.src=b.url; mostrar(prev,!!b.url); };
+    u.addEventListener('input',e=>{ b.url=e.target.value; refr(); programarGuardado(); });
+    const pasosWrap=document.createElement('div'); pasosWrap.className='form-bloque';
+    const pintarPasos=()=>{
+      pasosWrap.innerHTML=''; pasosWrap.appendChild(etiqueta('Pasos de texto'));
+      b.pasos.forEach((p,idx)=>{
+        const fila=document.createElement('div'); fila.className='form-fila';
+        const ta=textarea('campo campo-txt',p,'Texto del paso '+(idx+1)); setTimeout(()=>autoAlto(ta),0);
+        const del=document.createElement('button'); del.className='ic-btn peligro'; del.textContent='✕';
+        ta.addEventListener('input',ev=>{ b.pasos[idx]=ev.target.value; autoAlto(ta); programarGuardado(); });
+        del.addEventListener('click',()=>{ b.pasos.splice(idx,1); pintarPasos(); programarGuardado(); });
+        fila.append(ta,del); pasosWrap.appendChild(fila);
+      });
+      const add=document.createElement('button'); add.className='mini-btn'; add.textContent='＋ Agregar paso';
+      add.addEventListener('click',()=>{ b.pasos.push(''); pintarPasos(); programarGuardado(); });
+      pasosWrap.appendChild(add);
+    };
+    box.append(hint,u,prev); refr(); box.append(pasosWrap); pintarPasos();
+    return box;
+  }
+
+  return document.createElement('div');
 }
-function autoAlto(t){ t.style.height='auto'; t.style.height = t.scrollHeight+'px'; }
 
-function mover(i, dir){
-  const j = i + dir;
-  if(j<0 || j>=reportajeActual.bloques.length) return;
-  const a = reportajeActual.bloques;
-  [a[i], a[j]] = [a[j], a[i]];
-  renderBloques(); programarGuardado();
+function mover(i,dir){ const j=i+dir; if(j<0||j>=reportajeActual.bloques.length) return; const a=reportajeActual.bloques; [a[i],a[j]]=[a[j],a[i]]; renderBloques(); programarGuardado(); }
+
+/* ===== LECTOR — render con efectos ===== */
+let observerRev=null, charts=[], parallaxEls=[], onScroll=null, ChartLib=null;
+
+async function cargarChart(){
+  if(ChartLib) return ChartLib;
+  const mod=await import('https://cdn.jsdelivr.net/npm/chart.js@4.4.3/+esm');
+  mod.Chart.register(...mod.registerables);
+  ChartLib=mod.Chart; return ChartLib;
 }
 
-function escapar(s){ return (s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+$('btn-preview').addEventListener('click', abrirLector);
+$('btn-preview-2').addEventListener('click', abrirLector);
+$('btn-cerrar-lector').addEventListener('click', cerrarLector);
 
-/* guardar al cerrar la pestaña si hay cambios */
-window.addEventListener('beforeunload', e => {
-  if(cambiosPendientes){ e.preventDefault(); e.returnValue=''; }
-});
+async function abrirLector(){
+  if(cambiosPendientes) await guardar();
+  graficosPendientes={};
+  const cont=$('lector-contenido');
+  cont.className='tema-'+(reportajeActual.tema||'editorial');
+  cont.innerHTML=construirHTML(reportajeActual);
+  mostrar($('lector'),true);
+  $('lector').scrollTop=0;
+  document.body.style.overflow='hidden';
+  iniciarEfectos();
+}
+function cerrarLector(){
+  mostrar($('lector'),false);
+  document.body.style.overflow='';
+  if(observerRev) observerRev.disconnect();
+  charts.forEach(c=>{ try{ c.destroy(); }catch(e){} }); charts=[];
+  if(onScroll) $('lector').removeEventListener('scroll',onScroll);
+  parallaxEls=[];
+}
+
+function construirHTML(rep){
+  let html='';
+  (rep.bloques||[]).forEach(b=>{
+    switch(b.tipo){
+      case 'hero':
+        html+=`<section class="L-hero">
+          <div class="L-hero-bg" data-parallax="0.25" style="background-image:url('${escapar(b.url)}')"></div>
+          <div class="L-hero-velo"></div>
+          <div class="L-hero-txt rev"><h1>${escapar(b.titulo)}</h1>
+            ${b.subtitulo?`<p class="sub">${escapar(b.subtitulo)}</p>`:''}
+            ${(b.autor||b.fecha)?`<p class="meta">${escapar(b.autor)}${b.autor&&b.fecha?' · ':''}${escapar(b.fecha)}</p>`:''}
+          </div>
+          <div class="L-scroll-hint">↓</div>
+        </section>`; break;
+      case 'titulo':    html+=`<div class="L-cont"><h1 class="rev" style="font-size:2.4rem;line-height:1.1;margin:2.5rem 0 1rem;">${escapar(b.texto)}</h1></div>`; break;
+      case 'subtitulo': html+=`<div class="L-cont"><h4 class="rev" style="font-size:1.5rem;margin:1.8rem 0 .6rem;">${escapar(b.texto)}</h4></div>`; break;
+      case 'parrafo':   html+=`<div class="L-cont"><p class="L-parrafo rev">${escapar(b.texto).replace(/\n/g,'<br>')}</p></div>`; break;
+      case 'cita':      html+=`<div class="L-cont"><blockquote class="L-cita rev">${escapar(b.texto)}</blockquote></div>`; break;
+      case 'imagen':    html+=`<figure class="L-cont L-img rev"><img src="${escapar(b.url)}" alt="">${b.pie?`<figcaption>${escapar(b.pie)}</figcaption>`:''}</figure>`; break;
+      case 'separador': html+=`<div class="L-sep rev"></div>`; break;
+      case 'imagenFull':
+        html+=`<section class="L-full pos-${b.posicion||'abajo'}">
+          <div class="L-full-bg" data-parallax="0.2" style="background-image:url('${escapar(b.url)}')"></div>
+          <div class="L-full-velo"></div>
+          <div class="L-full-txt rev"><p>${escapar(b.texto).replace(/\n/g,'<br>')}</p></div>
+        </section>`; break;
+      case 'grafico':{
+        const gid='g'+uid();
+        graficosPendientes[gid]=b;
+        html+=`<div class="L-graf rev"><div class="L-graf-caja">
+          ${b.titulo?`<h4>${escapar(b.titulo)}</h4>`:''}
+          <canvas data-grafico="${gid}"></canvas>
+          ${b.fuente?`<div class="fuente">Fuente: ${escapar(b.fuente)}</div>`:''}
+        </div></div>`; break; }
+      case 'scrolly':{
+        let pasos=''; (b.pasos||[]).forEach(p=>{ if(p&&p.trim()) pasos+=`<div class="L-scrolly-paso"><div class="rev">${escapar(p).replace(/\n/g,'<br>')}</div></div>`; });
+        html+=`<section class="L-scrolly">
+          <div class="L-scrolly-media" style="background-image:url('${escapar(b.url)}')"><div class="L-scrolly-velo"></div></div>
+          <div class="L-scrolly-pasos">${pasos}</div>
+        </section>`; break; }
+    }
+  });
+  return html;
+}
+
+async function iniciarEfectos(){
+  const root=$('lector');
+  observerRev=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); observerRev.unobserve(e.target); } });
+  },{ root, threshold:0.15 });
+  root.querySelectorAll('.rev').forEach(el=>observerRev.observe(el));
+
+  parallaxEls=[...root.querySelectorAll('[data-parallax]')];
+  let ticking=false;
+  onScroll=()=>{
+    if(ticking) return; ticking=true;
+    requestAnimationFrame(()=>{
+      const h=root.clientHeight;
+      parallaxEls.forEach(el=>{
+        const r=el.parentElement.getBoundingClientRect();
+        const centro=r.top+r.height/2-h/2;
+        const f=parseFloat(el.dataset.parallax)||0.2;
+        el.style.transform=`translateY(${(-centro*f).toFixed(1)}px)`;
+      });
+      const prog=root.scrollTop/(root.scrollHeight-h||1);
+      $('progreso').style.width=Math.min(100,Math.max(0,prog*100))+'%';
+      ticking=false;
+    });
+  };
+  root.addEventListener('scroll',onScroll,{passive:true}); onScroll();
+
+  const canvases=[...root.querySelectorAll('[data-grafico]')];
+  if(canvases.length){
+    await cargarChart();
+    const obsG=new IntersectionObserver(entries=>{
+      entries.forEach(e=>{ if(e.isIntersecting){ dibujarGrafico(e.target); obsG.unobserve(e.target); } });
+    },{ root, threshold:0.3 });
+    canvases.forEach(c=>obsG.observe(c));
+  }
+}
+
+function colorTema(){
+  const tema=reportajeActual.tema||'editorial';
+  if(tema==='revista') return { color:'#FF2D6B', grid:'rgba(255,255,255,.12)', txt:'#fff', paleta:['#FF2D6B','#ffffff','#9a9a9a','#ffb800','#2d4ecc'] };
+  if(tema==='cine')    return { color:'#d9b370', grid:'rgba(255,255,255,.1)', txt:'#e8e6e1', paleta:['#d9b370','#8a6d3b','#c0c0b0','#5a5a52','#a08a5a'] };
+  return { color:'#2D4ECC', grid:'rgba(0,0,0,.08)', txt:'#1c1c1a', paleta:['#2D4ECC','#E8A13A','#00267C','#C23B22','#2c7a45'] };
+}
+function dibujarGrafico(canvas){
+  const b=graficosPendientes[canvas.dataset.grafico]; if(!b) return;
+  const c=colorTema();
+  const labels=(b.datos||[]).map(d=>d.etiqueta);
+  const valores=(b.datos||[]).map(d=>d.valor);
+  const tipo=b.tipoG||'barras';
+  const esCircular=tipo==='circular';
+  const cfg={
+    type: tipo==='lineas'?'line':(esCircular?'doughnut':'bar'),
+    data:{ labels, datasets:[{
+      data:valores,
+      backgroundColor: esCircular?c.paleta:(tipo==='lineas'?'transparent':c.color),
+      borderColor: tipo==='lineas'?c.color:(esCircular?'transparent':c.color),
+      borderWidth: tipo==='lineas'?3:0,
+      pointBackgroundColor:c.color, pointRadius:4, tension:.35, fill:false
+    }]},
+    options:{
+      responsive:true, animation:{duration:1100,easing:'easeOutQuart'},
+      plugins:{ legend:{ display:esCircular, labels:{ color:c.txt } } },
+      scales: esCircular?{}:{ y:{ beginAtZero:true, grid:{color:c.grid}, ticks:{color:c.txt} }, x:{ grid:{display:false}, ticks:{color:c.txt} } }
+    }
+  };
+  charts.push(new ChartLib(canvas, cfg));
+}
+
+window.addEventListener('beforeunload', e=>{ if(cambiosPendientes){ e.preventDefault(); e.returnValue=''; } });
+window.addEventListener('keydown', e=>{ if(e.key==='Escape' && !$('lector').classList.contains('oculto')) cerrarLector(); });
 </script>
 </body>
 </html>
