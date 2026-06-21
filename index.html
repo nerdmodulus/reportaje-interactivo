@@ -1367,7 +1367,14 @@ function construirHTML(rep){  let html='';
 async function iniciarEfectos(){
   const root=$('lector');
   observerRev=new IntersectionObserver(entries=>{
-    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); observerRev.unobserve(e.target); } });
+    entries.forEach(e=>{
+      const esGaleria=e.target.classList.contains('rev-izq')||e.target.classList.contains('rev-der')||e.target.classList.contains('rev-arriba');
+      if(esGaleria){
+        e.target.classList.toggle('visible', e.isIntersecting); // entra al bajar, se guarda al subir
+      } else if(e.isIntersecting){
+        e.target.classList.add('visible'); observerRev.unobserve(e.target); // el resto se anima una sola vez
+      }
+    });
   },{ root, threshold:0.15 });
  root.querySelectorAll('.rev, .palabras, .rev-izq, .rev-der, .rev-arriba').forEach(el=>observerRev.observe(el));
   root.querySelectorAll('video').forEach(v=>{ const p=v.play(); if(p&&p.catch) p.catch(()=>{}); });
