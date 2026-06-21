@@ -4,7 +4,7 @@
 
 ### Periodismo inmersivo, libre y sin código
 
-*Crea reportajes tipo Shorthand / The New York Times — con scroll animado, gráficos, audio, video y portadas a pantalla completa — directamente desde el navegador.*
+*Crea reportajes con scroll animado, gráficos, audio, video y portadas a pantalla completa directamente desde el navegador.*
 
 <br>
 
