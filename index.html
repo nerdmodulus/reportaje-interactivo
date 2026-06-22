@@ -522,7 +522,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDoc, doc, updateDoc, deleteDoc, query, where, orderBy, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDoc, doc, updateDoc, deleteDoc, onSnapshot, query, where, orderBy, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBr5OcwH9jKdoBVr6Dp_hJto5oNHEbJGtI",
@@ -570,7 +570,7 @@ onAuthStateChanged(auth, u=>{ usuario=u; if(modoPublico) return; if(u){ mostrar(
 })();
 
 /* DASHBOARD */
-async function irADashboard(){ mostrar($('vista-editor'),false); mostrar($('barra-editor'),false); mostrar($('vista-dashboard'),true); renderPlantillas(); await cargarReportajes(); }
+async function irADashboard(){ detenerEscucha(); mostrar($('vista-editor'),false); mostrar($('barra-editor'),false); mostrar($('vista-dashboard'),true); renderPlantillas(); await cargarReportajes(); }
 
 function renderPlantillas(){
   const grid=$('plantillas-grid'); if(!grid) return;
@@ -591,7 +591,7 @@ async function crearDesdePlantilla(key){
       ownerUid:usuario.uid, ownerEmail:usuario.email,
       titulo:pl.nombre, tema:pl.tema||'editorial',
       fondo:pl.fondo||'', fondoTipo:pl.fondoTipo||'color', fondoImagen:pl.fondoImagen||'', fondoEstilo:pl.fondoEstilo||'noche',
-      glass:!!pl.glass, bloques, publicado:false, createdAt:serverTimestamp(), updatedAt:serverTimestamp()
+      glass:!!pl.glass, editores:[], bloques, publicado:false, createdAt:serverTimestamp(), updatedAt:serverTimestamp()
     });
     toast('Plantilla creada · ¡a rellenar!');
     abrirReportaje(ref.id);
@@ -600,22 +600,31 @@ async function crearDesdePlantilla(key){
 async function cargarReportajes(){
   const cont=$('lista-reportajes'); cont.innerHTML='<p style="color:var(--tinta-60)">Cargando…</p>';
   try{
-    const q=query(collection(db,'reportajes'),where('ownerUid','==',usuario.uid),orderBy('updatedAt','desc'));
-    const snap=await getDocs(q);
-    numReportajes=snap.size;
+    const qProp=query(collection(db,'reportajes'),where('ownerUid','==',usuario.uid),orderBy('updatedAt','desc'));
+    const qComp=query(collection(db,'reportajes'),where('editores','array-contains',usuario.email),orderBy('updatedAt','desc'));
+    const [snapP,snapC]=await Promise.all([getDocs(qProp), getDocs(qComp)]);
+    const mapa=new Map();
+    snapP.forEach(d=>mapa.set(d.id,{ id:d.id, ...d.data(), _propio:true }));
+    snapC.forEach(d=>{ if(!mapa.has(d.id)) mapa.set(d.id,{ id:d.id, ...d.data(), _propio:false }); });
+    const docs=[...mapa.values()].sort((a,b)=>((b.updatedAt&&b.updatedAt.toMillis&&b.updatedAt.toMillis())||0)-((a.updatedAt&&a.updatedAt.toMillis&&a.updatedAt.toMillis())||0));
+    numReportajes=snapP.size;
     $('btn-nuevo').disabled = numReportajes>=5;
     $('btn-nuevo').style.opacity = numReportajes>=5 ? '.5' : '1';
     $('btn-nuevo').title = numReportajes>=5 ? 'Límite de 5 reportajes alcanzado' : '';
-    if(snap.empty){ cont.innerHTML='<div class="vacio"><b>Aún no tienes reportajes</b>Crea el primero con el botón “Nuevo reportaje”.</div>'; return; }
+    if(!docs.length){ cont.innerHTML='<div class="vacio"><b>Aún no tienes reportajes</b>Crea el primero con el botón “Empezar desde cero”.</div>'; return; }
     cont.innerHTML='';
-    snap.forEach(d=>{ const r=d.data(); const nb=(r.bloques||[]).length;
+    docs.forEach(r=>{ const nb=(r.bloques||[]).length;
       const div=document.createElement('div'); div.className='tarjeta';
       div.innerHTML=`<div class="tarjeta-info"><h3>${escapar(r.titulo)||'Sin título'}</h3>
-        <div class="tarjeta-meta"><span class="pill ${r.publicado?'pill-publicado':'pill-borrador'}">${r.publicado?'Publicado':'Borrador'}</span>
-        <span>${nb} bloque${nb===1?'':'s'}</span><span>· ${r.tema||'editorial'}</span><span>· Editado ${fecha(r.updatedAt)}</span></div></div>
+        <div class="tarjeta-meta">
+          <span class="pill ${r.publicado?'pill-publicado':'pill-borrador'}">${r.publicado?'Publicado':'Borrador'}</span>
+          ${r._propio?'':'<span class="pill" style="background:#e7e9fb;color:#2d4ecc">Compartido</span>'}
+          <span>${nb} bloque${nb===1?'':'s'}</span><span>· ${r.tema||'editorial'}</span><span>· Editado ${fecha(r.updatedAt)}</span>
+          ${r._propio?'':`<span>· de ${escapar(r.ownerEmail||'')}</span>`}
+        </div></div>
         <div class="tarjeta-acciones">
-          <button class="btn btn-fantasma btn-sm" data-abrir="${d.id}">Editar</button>
-          <button class="btn btn-peligro btn-sm" data-borrar="${d.id}" data-titulo="${escapar(r.titulo)||'Sin título'}">Eliminar</button>
+          <button class="btn btn-fantasma btn-sm" data-abrir="${r.id}">Editar</button>
+          ${r._propio?`<button class="btn btn-peligro btn-sm" data-borrar="${r.id}" data-titulo="${escapar(r.titulo)||'Sin título'}">Eliminar</button>`:''}
         </div>`;
       cont.appendChild(div);
     });
@@ -627,17 +636,16 @@ async function cargarReportajes(){
     }));
   }catch(e){ cont.innerHTML=`<div class="vacio"><b>No se pudo cargar</b>${e.code==='failed-precondition'?'Falta crear un índice en Firestore. Revisa la consola (F12): aparece un enlace para crearlo con un clic.':escapar(e.message)}</div>`; console.error(e); }
 }
-
 /* CREAR / ABRIR / GUARDAR */
 $('btn-nuevo').addEventListener('click', async ()=>{
   if(numReportajes>=5){ toast('Límite de 5 reportajes alcanzado. Elimina uno para crear otro.'); return; }
-  try{ const ref=await addDoc(collection(db,'reportajes'),{ ownerUid:usuario.uid, ownerEmail:usuario.email, titulo:'', tema:'editorial', fondo:'', fondoTipo:'color', fondoImagen:'', fondoEstilo:'noche', glass:false, bloques:[], publicado:false, createdAt:serverTimestamp(), updatedAt:serverTimestamp() }); abrirReportaje(ref.id); }
+  try{ const ref=await addDoc(collection(db,'reportajes'),{ ownerUid:usuario.uid, ownerEmail:usuario.email, titulo:'', tema:'editorial', fondo:'', fondoTipo:'color', fondoImagen:'', fondoEstilo:'noche', glass:false, editores:[], bloques:[], publicado:false, createdAt:serverTimestamp(), updatedAt:serverTimestamp() }); abrirReportaje(ref.id); }
   catch(e){ toast('Error al crear: '+e.code); console.error(e); }
 });
 async function abrirReportaje(id){
   const snap=await getDoc(doc(db,'reportajes',id)); if(!snap.exists()){ toast('No encontrado'); return; }
   const d=snap.data();
-  reportajeActual={ id, titulo:d.titulo||'', tema:d.tema||'editorial', fondo:d.fondo||'', fondoTipo:d.fondoTipo||(d.fondo?'color':'color'), fondoImagen:d.fondoImagen||'', fondoEstilo:d.fondoEstilo||'noche', glass:!!d.glass, bloques:d.bloques||[] };
+  reportajeActual={ id, ownerUid:d.ownerUid, titulo:d.titulo||'', tema:d.tema||'editorial', fondo:d.fondo||'', fondoTipo:d.fondoTipo||(d.fondo?'color':'color'), fondoImagen:d.fondoImagen||'', fondoEstilo:d.fondoEstilo||'noche', glass:!!d.glass, editores:d.editores||[], bloques:d.bloques||[] };
   $('titulo-reportaje').value=reportajeActual.titulo;
   $('tema').value=reportajeActual.tema;
   $('fondo').value=reportajeActual.fondo||'#0c0c0e';
@@ -648,13 +656,23 @@ async function abrirReportaje(id){
   renderBloques();
   mostrar($('vista-dashboard'),false); mostrar($('vista-editor'),true); mostrar($('barra-editor'),true);
   marcarGuardado(true);
+  escucharEnVivo(id);
 }
 $('btn-volver').addEventListener('click', async ()=>{ if(cambiosPendientes) await guardar(); irADashboard(); });
 async function guardar(){
   if(!reportajeActual) return;
+  if(remotoPendiente){ fusionarRemoto(remotoPendiente); remotoPendiente=null; }
   reportajeActual.titulo=$('titulo-reportaje').value;
-  try{ await updateDoc(doc(db,'reportajes',reportajeActual.id),{ titulo:reportajeActual.titulo, tema:reportajeActual.tema, fondo:reportajeActual.fondo||'', fondoTipo:reportajeActual.fondoTipo||'color', fondoImagen:reportajeActual.fondoImagen||'', fondoEstilo:reportajeActual.fondoEstilo||'noche', glass:!!reportajeActual.glass, bloques:reportajeActual.bloques, updatedAt:serverTimestamp() }); marcarGuardado(true); }
-  catch(e){ toast('Error al guardar: '+e.code); console.error(e); }
+  try{
+    await updateDoc(doc(db,'reportajes',reportajeActual.id),{
+      titulo:reportajeActual.titulo, tema:reportajeActual.tema,
+      fondo:reportajeActual.fondo||'', fondoTipo:reportajeActual.fondoTipo||'color',
+      fondoImagen:reportajeActual.fondoImagen||'', fondoEstilo:reportajeActual.fondoEstilo||'noche',
+      glass:!!reportajeActual.glass, editores:reportajeActual.editores||[],
+      bloques:reportajeActual.bloques, updatedAt:serverTimestamp()
+    });
+    marcarGuardado(true);
+  }catch(e){ toast('Error al guardar: '+e.code); console.error(e); }
 }
 $('btn-guardar').addEventListener('click', ()=>{ guardar(); toast('Guardado'); });
 function programarGuardado(){ marcarGuardado(false); clearTimeout(timerGuardado); timerGuardado=setTimeout(guardar,1200); }
@@ -1627,6 +1645,85 @@ function dibujarGrafico(canvas){
   charts.push(new ChartLib(canvas, cfg));
 }
 
+  /* ===== COLABORACIÓN EN VIVO (Modelo B: varios editan a la vez) ===== */
+let unsubEnVivo=null, remotoPendiente=null, bloqueEnEdicion=null, necesitaRepintar=false, avisoT=null;
+function estaEditando(){ const a=document.activeElement; return !!a && ( a===$('titulo-reportaje') || $('bloques').contains(a) ); }
+function esDueno(){ return !!(reportajeActual && usuario && reportajeActual.ownerUid===usuario.uid); }
+$('bloques').addEventListener('focusin', e=>{
+  const bl=e.target.closest('.bloque');
+  if(bl && reportajeActual){ const idx=[...$('bloques').children].indexOf(bl); bloqueEnEdicion=(reportajeActual.bloques[idx]&&reportajeActual.bloques[idx].id)||null; }
+});
+$('bloques').addEventListener('focusout', ()=>{ setTimeout(()=>{
+  if(estaEditando()) return;
+  bloqueEnEdicion=null;
+  if(remotoPendiente){ aplicarRemoto(remotoPendiente); remotoPendiente=null; necesitaRepintar=false; }
+  else if(necesitaRepintar){ renderBloques(); necesitaRepintar=false; }
+}, 150); });
+function escucharEnVivo(id){
+  detenerEscucha();
+  unsubEnVivo=onSnapshot(doc(db,'reportajes',id), snap=>{
+    if(!snap.exists() || snap.metadata.hasPendingWrites) return;
+    if(!reportajeActual || reportajeActual.id!==id) return;
+    const d=snap.data();
+    if( d.titulo===reportajeActual.titulo && d.tema===reportajeActual.tema && !!d.glass===!!reportajeActual.glass
+        && JSON.stringify(d.bloques||[])===JSON.stringify(reportajeActual.bloques||[])
+        && JSON.stringify(d.editores||[])===JSON.stringify(reportajeActual.editores||[]) ) return;
+    if(estaEditando()){ remotoPendiente=d; } else { aplicarRemoto(d); }
+    avisoColab();
+  }, err=>console.error('onSnapshot', err));
+}
+function detenerEscucha(){ if(unsubEnVivo){ try{ unsubEnVivo(); }catch(e){} unsubEnVivo=null; } remotoPendiente=null; bloqueEnEdicion=null; necesitaRepintar=false; }
+function aplicarRemoto(d){
+  Object.assign(reportajeActual,{ titulo:d.titulo||'', tema:d.tema||'editorial', fondo:d.fondo||'', fondoTipo:d.fondoTipo||'color', fondoImagen:d.fondoImagen||'', fondoEstilo:d.fondoEstilo||'noche', glass:!!d.glass, editores:d.editores||[], bloques:d.bloques||[] });
+  if(document.activeElement!==$('titulo-reportaje')) $('titulo-reportaje').value=reportajeActual.titulo;
+  $('tema').value=reportajeActual.tema; $('glass').checked=reportajeActual.glass;
+  $('fondo').value=reportajeActual.fondo||'#0c0c0e'; $('fondo-estilo').value=reportajeActual.fondoEstilo||'noche'; $('fondo-imagen').value=reportajeActual.fondoImagen||'';
+  sincronizarFondoUI(); renderBloques(); marcarGuardado(true);
+}
+function fusionarRemoto(d){
+  const foco=bloqueEnEdicion;
+  const localFoco=foco?reportajeActual.bloques.find(b=>b.id===foco):null;
+  let nuevos=(d.bloques||[]).map(rb=> (localFoco && rb.id===foco) ? localFoco : rb );
+  if(localFoco && !nuevos.some(rb=>rb.id===foco)) nuevos.push(localFoco);
+  reportajeActual.bloques=nuevos;
+  reportajeActual.editores=d.editores||reportajeActual.editores;
+  necesitaRepintar=true;
+}
+function avisoColab(){ clearTimeout(avisoT); avisoT=setTimeout(()=>toast('✍️ Cambios de un colaborador'),350); }
+function injectarBotonColab(){
+  if($('btn-colab')) return;
+  const cont=document.querySelector('.editor-opciones'); if(!cont) return;
+  const btn=document.createElement('button'); btn.id='btn-colab'; btn.className='btn btn-fantasma btn-sm'; btn.textContent='👥 Colaboradores';
+  btn.addEventListener('click', abrirPanelColab); cont.appendChild(btn);
+}
+function abrirPanelColab(){
+  if(!reportajeActual) return;
+  let modal=$('modal-colab');
+  if(!modal){ modal=document.createElement('div'); modal.id='modal-colab'; modal.style.cssText='position:fixed;inset:0;z-index:130;display:grid;place-items:center;background:rgba(0,0,0,.45);padding:1rem;'; document.body.appendChild(modal); }
+  const soyDueno=esDueno();
+  const lista=(reportajeActual.editores||[]).map(em=>`<li style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;padding:.4rem 0;border-bottom:1px solid var(--linea);">${escapar(em)}${soyDueno?`<button data-quita="${escapar(em)}" class="mini-btn" style="color:var(--rojo)">Quitar</button>`:''}</li>`).join('') || '<li style="opacity:.6;padding:.4rem 0;">Aún no hay colaboradores.</li>';
+  modal.innerHTML=`<div style="background:var(--papel);color:var(--tinta);max-width:440px;width:100%;border-radius:14px;padding:1.4rem;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+    <h3 style="font-family:'Fraunces',serif;font-size:1.3rem;margin-bottom:.3rem;">Colaboradores</h3>
+    <p style="font-size:.85rem;color:var(--tinta-60);margin-bottom:1rem;">Quienes agregues podrán <b>editar</b> este reportaje (no borrarlo). Deben entrar con ese mismo correo de Google.</p>
+    <ul style="list-style:none;margin:0 0 1rem;">${lista}</ul>
+    ${soyDueno?`<div style="display:flex;gap:.5rem;"><input id="colab-email" class="campo campo-url" placeholder="correo@gmail.com" style="flex:1;"><button id="colab-add" class="btn btn-primario btn-sm">Agregar</button></div>`:'<p style="font-size:.8rem;color:var(--tinta-60)">Solo el autor original gestiona la lista.</p>'}
+    <div style="text-align:right;margin-top:1.2rem;"><button id="colab-cerrar" class="btn btn-fantasma btn-sm">Cerrar</button></div>
+  </div>`;
+  modal.style.display='grid';
+  modal.onclick=e=>{ if(e.target===modal) modal.style.display='none'; };
+  $('colab-cerrar').onclick=()=>{ modal.style.display='none'; };
+  if(soyDueno){
+    $('colab-add').onclick=()=>{
+      const em=($('colab-email').value||'').trim().toLowerCase();
+      if(!em||!em.includes('@')){ toast('Escribe un correo válido'); return; }
+      if((reportajeActual.editores||[]).includes(em)){ toast('Ya está en la lista'); return; }
+      reportajeActual.editores=[...(reportajeActual.editores||[]), em]; guardar(); toast('Colaborador agregado'); abrirPanelColab();
+    };
+    modal.querySelectorAll('[data-quita]').forEach(b=>b.onclick=()=>{ reportajeActual.editores=(reportajeActual.editores||[]).filter(x=>x!==b.dataset.quita); guardar(); toast('Colaborador quitado'); abrirPanelColab(); });
+  }
+}
+injectarBotonColab();
+  
 window.addEventListener('beforeunload', e=>{ if(cambiosPendientes){ e.preventDefault(); e.returnValue=''; } });
 window.addEventListener('keydown', e=>{ if(e.key==='Escape' && !$('lector').classList.contains('oculto')) cerrarLector(); });
 </script>
