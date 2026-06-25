@@ -411,6 +411,11 @@
   .L-indice a.activo{ color:#fff; border-right-color:var(--ambar); font-weight:600; }
   @media (max-width:960px){ .L-indice{ display:none; } }
 
+  /* ===== VOLVER ARRIBA ===== */
+  .L-arriba{ position:fixed; right:1rem; bottom:1.2rem; z-index:108; display:inline-flex; align-items:center; gap:.4rem; padding:.5rem .9rem; border-radius:99px; background:rgba(0,0,0,.55); color:#fff; font-size:.8rem; font-weight:600; border:0; cursor:pointer; backdrop-filter:blur(6px); opacity:0; transform:translateY(12px); pointer-events:none; transition:opacity .25s ease, transform .25s ease; }
+  .L-arriba.ver{ opacity:1; transform:none; pointer-events:auto; }
+  .L-arriba:hover{ background:rgba(0,0,0,.75); }
+
   /* selectores extra del editor de fondo */
   #fondo-tipo, #fondo-estilo{ font-family:inherit; font-size:.85rem; padding:.4rem .6rem; border:1px solid var(--linea); border-radius:8px; background:#fff; color:var(--tinta); cursor:pointer; }
   body.oscuro #fondo-tipo, body.oscuro #fondo-estilo, body.oscuro #fondo-imagen{ background:#1e222a; }
@@ -715,7 +720,7 @@ const PLANTILLAS = {
   cita:      { texto:'' },
   imagen:    { url:'', pie:'' },
   imagenFull:{ url:'', texto:'', posicion:'abajo' },
-  grafico:   { tipoG:'barras', titulo:'', fuente:'', datos:[{etiqueta:'',valor:0},{etiqueta:'',valor:0}] },
+  grafico:   { tipoG:'barras', titulo:'', fuente:'', etiquetas:['',''], series:[{nombre:'Serie 1', valores:[0,0]}] },
   scrolly:   { url:'', pasos:[''] },
   secuencia: { pasos:[{url:'',texto:''},{url:'',texto:''}] },
   galeria:   { imagenes:[{url:'',pie:''},{url:'',pie:''},{url:'',pie:''}], pie:'' },
@@ -942,32 +947,62 @@ function cuerpoBloque(b){
   }
 
   if(b.tipo==='grafico'){
+    migrarGrafico(b);
     const box=document.createElement('div'); box.className='form-bloque';
+    const hint=document.createElement('div'); hint.className='hint'; hint.textContent='Puedes graficar una o varias líneas (series) en el mismo gráfico para comparar. Primero define las categorías del eje X (ej: 2022, 2023…), y luego cada serie con su nombre y un valor por categoría.';
     const sel=document.createElement('select'); sel.className='campo campo-txt';
     sel.innerHTML='<option value="barras">Barras</option><option value="lineas">Líneas</option><option value="circular">Circular (torta)</option>';
     sel.value=b.tipoG||'barras';
     const tit=input('campo campo-txt',b.titulo,'Título del gráfico…');
-    const datosWrap=document.createElement('div'); datosWrap.className='form-bloque';
-    const pintarDatos=()=>{
-      datosWrap.innerHTML=''; datosWrap.appendChild(etiqueta('Datos (etiqueta y valor)'));
-      b.datos.forEach((d,idx)=>{
-        const fila=document.createElement('div'); fila.className='datos-fila';
-        const e=input('campo campo-txt',d.etiqueta,'Etiqueta'); const v=input('campo campo-txt',d.valor,'Valor'); v.type='number';
-        const del=document.createElement('button'); del.className='ic-btn peligro'; del.textContent='✕';
-        e.addEventListener('input',ev=>{ d.etiqueta=ev.target.value; programarGuardado(); });
-        v.addEventListener('input',ev=>{ d.valor=parseFloat(ev.target.value)||0; programarGuardado(); });
-        del.addEventListener('click',()=>{ b.datos.splice(idx,1); pintarDatos(); programarGuardado(); });
-        fila.append(e,v,del); datosWrap.appendChild(fila);
-      });
-      const add=document.createElement('button'); add.className='mini-btn'; add.textContent='＋ Agregar dato';
-      add.addEventListener('click',()=>{ b.datos.push({etiqueta:'',valor:0}); pintarDatos(); programarGuardado(); });
-      datosWrap.appendChild(add);
-    };
     const fuente=input('campo campo-txt',b.fuente,'Fuente de los datos (ej: INE, 2025)');
-    sel.addEventListener('change',e=>{ b.tipoG=e.target.value; programarGuardado(); });
+    const zona=document.createElement('div'); zona.className='form-bloque';
+    const pintar=()=>{
+      zona.innerHTML='';
+      const circular=(b.tipoG||'barras')==='circular';
+      zona.appendChild(etiqueta('Categorías (eje X)'));
+      b.etiquetas.forEach((et,ci)=>{
+        const fila=document.createElement('div'); fila.className='form-fila';
+        const e=input('campo campo-txt',et,'Categoría '+(ci+1));
+        e.addEventListener('input',ev=>{ b.etiquetas[ci]=ev.target.value; programarGuardado(); });
+        const del=document.createElement('button'); del.className='ic-btn peligro'; del.textContent='✕';
+        del.addEventListener('click',()=>{ b.etiquetas.splice(ci,1); b.series.forEach(s=>s.valores.splice(ci,1)); pintar(); programarGuardado(); });
+        fila.append(e,del); zona.appendChild(fila);
+      });
+      const addCat=document.createElement('button'); addCat.className='mini-btn'; addCat.textContent='＋ Agregar categoría';
+      addCat.addEventListener('click',()=>{ b.etiquetas.push(''); b.series.forEach(s=>s.valores.push(0)); pintar(); programarGuardado(); });
+      zona.appendChild(addCat);
+      if(circular){ const aviso=document.createElement('div'); aviso.className='hint'; aviso.textContent='El gráfico circular usa solo la primera serie.'; zona.appendChild(aviso); }
+      b.series.forEach((s,si)=>{
+        const cont=document.createElement('div'); cont.className='form-bloque';
+        cont.style.cssText='border:1px solid var(--linea); border-radius:10px; padding:.7rem; background:var(--papel-2);';
+        const cab=document.createElement('div'); cab.className='form-fila';
+        const nom=input('campo campo-txt',s.nombre,'Nombre de la serie '+(si+1)+' (ej: 2024)');
+        nom.addEventListener('input',ev=>{ s.nombre=ev.target.value; programarGuardado(); });
+        cab.appendChild(nom);
+        if(b.series.length>1){
+          const delS=document.createElement('button'); delS.className='mini-btn'; delS.style.color='var(--rojo)'; delS.textContent='✕ Serie';
+          delS.addEventListener('click',()=>{ b.series.splice(si,1); pintar(); programarGuardado(); });
+          cab.appendChild(delS);
+        }
+        cont.appendChild(cab);
+        b.etiquetas.forEach((et,ci)=>{
+          const fila=document.createElement('div'); fila.className='form-fila'; fila.style.alignItems='center';
+          const lab=document.createElement('span'); lab.style.cssText='font-size:.8rem;color:var(--tinta-60);min-width:90px;'; lab.textContent=et||('Cat '+(ci+1));
+          const v=input('campo campo-txt',s.valores[ci],'Valor'); v.type='number';
+          v.addEventListener('input',ev=>{ s.valores[ci]=parseFloat(ev.target.value)||0; programarGuardado(); });
+          fila.append(lab,v); cont.appendChild(fila);
+        });
+        zona.appendChild(cont);
+      });
+      const addS=document.createElement('button'); addS.className='mini-btn'; addS.textContent='＋ Agregar serie (otra línea)';
+      addS.addEventListener('click',()=>{ b.series.push({nombre:'', valores:b.etiquetas.map(()=>0)}); pintar(); programarGuardado(); });
+      zona.appendChild(addS);
+    };
+    sel.addEventListener('change',e=>{ b.tipoG=e.target.value; pintar(); programarGuardado(); });
     tit.addEventListener('input',e=>{ b.titulo=e.target.value; programarGuardado(); });
     fuente.addEventListener('input',e=>{ b.fuente=e.target.value; programarGuardado(); });
-    box.append(etiqueta('Tipo de gráfico'),sel,tit); pintarDatos(); box.append(datosWrap,etiqueta('Fuente'),fuente);
+    box.append(hint,etiqueta('Tipo de gráfico'),sel,tit,zona,etiqueta('Fuente'),fuente);
+    pintar();
     return box;
   }
 
@@ -1167,7 +1202,7 @@ function cuerpoBloque(b){
 function mover(i,dir){ const j=i+dir; if(j<0||j>=reportajeActual.bloques.length) return; const a=reportajeActual.bloques; [a[i],a[j]]=[a[j],a[i]]; renderBloques(); programarGuardado(); }
 
 /* ===== LECTOR — render con efectos ===== */
-let observerRev=null, charts=[], parallaxEls=[], onScroll=null, ChartLib=null, seqObservers=[];
+let observerRev=null, charts=[], parallaxEls=[], onScroll=null, ChartLib=null, seqObservers=[], btnArriba=null;
 
 async function cargarChart(){
   if(ChartLib) return ChartLib;
@@ -1205,10 +1240,10 @@ function aplicarFondo(cont, rep){
   else if(tipo==='estilo' && FONDOS_ESTILO[rep.fondoEstilo]){ cont.style.background=FONDOS_ESTILO[rep.fondoEstilo]; }
 }
 
-/* índice lateral + tiempo de lectura */
+/* índice lateral + tiempo de lectura + botón volver arriba */
 function construirIndice(rep){
   const lec=$('lector');
-  lec.querySelectorAll('.L-indice,.L-lectura-chip').forEach(n=>n.remove());
+  lec.querySelectorAll('.L-indice,.L-lectura-chip,.L-arriba').forEach(n=>n.remove());
   const min=calcularLectura(rep);
   if(min){ const chip=document.createElement('div'); chip.className='L-lectura-chip'; chip.textContent='⏱ '+min+' min de lectura'; lec.appendChild(chip); }
   if(indiceSecciones.length>=2){
@@ -1217,6 +1252,10 @@ function construirIndice(rep){
     lec.appendChild(nav);
     nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',ev=>{ ev.preventDefault(); const t=document.getElementById(a.dataset.target); if(t) t.scrollIntoView({behavior:'smooth',block:'start'}); }));
   }
+  // botón "Volver arriba"
+  btnArriba=document.createElement('button'); btnArriba.className='L-arriba'; btnArriba.innerHTML='↑ Volver arriba';
+  btnArriba.addEventListener('click',()=>lec.scrollTo({top:0,behavior:'smooth'}));
+  lec.appendChild(btnArriba);
 }
 function calcularLectura(rep){
   let palabras=0;
@@ -1278,8 +1317,8 @@ function cerrarLector(){
   charts.forEach(c=>{ try{ c.destroy(); }catch(e){} }); charts=[];
   seqObservers.forEach(o=>{ try{ o.disconnect(); }catch(e){} }); seqObservers=[];
   if(onScroll) $('lector').removeEventListener('scroll',onScroll);
-  parallaxEls=[];
-  $('lector').querySelectorAll('.L-indice,.L-lectura-chip').forEach(n=>n.remove());
+  parallaxEls=[]; btnArriba=null;
+  $('lector').querySelectorAll('.L-indice,.L-lectura-chip,.L-arriba').forEach(n=>n.remove());
   $('lector-contenido').querySelectorAll('audio,video').forEach(m=>{ try{ m.pause(); }catch(e){} });
 }
 
@@ -1416,6 +1455,7 @@ async function iniciarEfectos(){
       });
       const prog=root.scrollTop/(root.scrollHeight-h||1);
       $('progreso').style.width=Math.min(100,Math.max(0,prog*100))+'%';
+      if(btnArriba) btnArriba.classList.toggle('ver', root.scrollTop>h*0.6);
       ticking=false;
     });
   };
@@ -1620,25 +1660,54 @@ function colorTema(){
   if(tema==='cine')    return { color:'#d9b370', grid:'rgba(255,255,255,.1)', txt:'#e8e6e1', paleta:['#d9b370','#8a6d3b','#c0c0b0','#5a5a52','#a08a5a'] };
   return { color:'#2D4ECC', grid:'rgba(0,0,0,.08)', txt:'#1c1c1a', paleta:['#2D4ECC','#E8A13A','#00267C','#C23B22','#2c7a45'] };
 }
+
+  /* Convierte gráficos antiguos (datos:[{etiqueta,valor}]) al modelo nuevo (etiquetas + series) y mantiene todo alineado */
+function migrarGrafico(b){
+  if(!Array.isArray(b.etiquetas) || !Array.isArray(b.series)){
+    const datos = Array.isArray(b.datos)?b.datos:[];
+    b.etiquetas = datos.map(d=>d.etiqueta||'');
+    b.series = [{ nombre:'Serie 1', valores: datos.map(d=>parseFloat(d.valor)||0) }];
+    if(!b.etiquetas.length){ b.etiquetas=['','']; b.series=[{nombre:'Serie 1', valores:[0,0]}]; }
+  }
+  if(!b.series.length) b.series=[{nombre:'Serie 1', valores:b.etiquetas.map(()=>0)}];
+  b.series.forEach(s=>{
+    if(!Array.isArray(s.valores)) s.valores=[];
+    while(s.valores.length<b.etiquetas.length) s.valores.push(0);
+    s.valores.length=b.etiquetas.length;
+  });
+}
+  
 function dibujarGrafico(canvas){
   const b=graficosPendientes[canvas.dataset.grafico]; if(!b) return;
+  migrarGrafico(b);
   const c=colorTema();
-  const labels=(b.datos||[]).map(d=>d.etiqueta);
-  const valores=(b.datos||[]).map(d=>d.valor);
+  const labels=b.etiquetas||[];
   const tipo=b.tipoG||'barras';
   const esCircular=tipo==='circular';
+  let datasets;
+  if(esCircular){
+    const s0=b.series[0]||{valores:[]};
+    datasets=[{ data:s0.valores, backgroundColor:c.paleta, borderColor:'transparent', borderWidth:0 }];
+  } else {
+    datasets=b.series.map((s,i)=>{
+      const col=c.paleta[i%c.paleta.length];
+      return {
+        label:s.nombre||('Serie '+(i+1)),
+        data:s.valores,
+        backgroundColor: tipo==='lineas'?'transparent':col,
+        borderColor: col,
+        borderWidth: tipo==='lineas'?3:0,
+        pointBackgroundColor: col, pointRadius:4, tension:.35, fill:false
+      };
+    });
+  }
+  const multi = !esCircular && b.series.length>1;
   const cfg={
     type: tipo==='lineas'?'line':(esCircular?'doughnut':'bar'),
-    data:{ labels, datasets:[{
-      data:valores,
-      backgroundColor: esCircular?c.paleta:(tipo==='lineas'?'transparent':c.color),
-      borderColor: tipo==='lineas'?c.color:(esCircular?'transparent':c.color),
-      borderWidth: tipo==='lineas'?3:0,
-      pointBackgroundColor:c.color, pointRadius:4, tension:.35, fill:false
-    }]},
+    data:{ labels, datasets },
     options:{
       responsive:true, animation:{duration:1100,easing:'easeOutQuart'},
-      plugins:{ legend:{ display:esCircular, labels:{ color:c.txt } } },
+      plugins:{ legend:{ display: esCircular||multi, labels:{ color:c.txt } } },
       scales: esCircular?{}:{ y:{ beginAtZero:true, grid:{color:c.grid}, ticks:{color:c.txt} }, x:{ grid:{display:false}, ticks:{color:c.txt} } }
     }
   };
