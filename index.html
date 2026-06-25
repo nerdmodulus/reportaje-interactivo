@@ -1725,7 +1725,7 @@ $('bloques').addEventListener('focusin', e=>{
 $('bloques').addEventListener('focusout', ()=>{ setTimeout(()=>{
   if(estaEditando()) return;
   bloqueEnEdicion=null;
-  if(remotoPendiente){ aplicarRemoto(remotoPendiente); remotoPendiente=null; necesitaRepintar=false; }
+  if(remotoPendiente){ if(cambiosPendientes){ remotoPendiente=null; } else { aplicarRemoto(remotoPendiente); remotoPendiente=null; } necesitaRepintar=false; }
   else if(necesitaRepintar){ renderBloques(); necesitaRepintar=false; }
 }, 150); });
 function escucharEnVivo(id){
