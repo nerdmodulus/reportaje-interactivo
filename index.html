@@ -716,9 +716,9 @@ const PLANTILLAS = {
   hero:      { titulo:'', subtitulo:'', autor:'', fecha:'', url:'', video:'' },
   titulo:    { texto:'' },
   subtitulo: { texto:'' },
-  parrafo:   { texto:'' },
+  parrafo:   { texto:'', tam:'' },
   cita:      { texto:'' },
-  imagen:    { url:'', pie:'' },
+  imagen:    { url:'', pie:'', enlace:'' },
   imagenFull:{ url:'', texto:'', posicion:'abajo' },
   grafico:   { tipoG:'barras', titulo:'', fuente:'', etiquetas:['',''], series:[{nombre:'Serie 1', valores:[0,0]}] },
   scrolly:   { url:'', pasos:[''] },
@@ -896,6 +896,21 @@ function cuerpoBloque(b){
     const ph={titulo:'Escribe el título…',subtitulo:'Escribe el subtítulo…',parrafo:'Escribe el párrafo…',cita:'Escribe la cita…'}[b.tipo];
     const t=textarea('campo '+clase,b.texto,ph); setTimeout(()=>autoAlto(t),0);
     t.addEventListener('input',e=>{ b.texto=e.target.value; autoAlto(t); programarGuardado(); });
+    if(b.tipo==='parrafo' || b.tipo==='cita'){
+      const box=document.createElement('div'); box.className='form-bloque';
+      const hint=document.createElement('div'); hint.className='hint'; hint.innerHTML='Para un enlace dentro del texto escribe <b>[texto del enlace](https://la-url.com)</b>.';
+      box.append(t,hint);
+      if(b.tipo==='parrafo'){
+        const fila=document.createElement('div'); fila.className='form-fila'; fila.style.alignItems='center';
+        const lab=document.createElement('span'); lab.className='form-etq'; lab.textContent='Tamaño'; lab.style.alignSelf='center';
+        const sel=document.createElement('select'); sel.className='campo campo-txt'; sel.style.maxWidth='180px';
+        sel.innerHTML='<option value="">Normal</option><option value="0.95rem">Pequeño</option><option value="1.4rem">Grande</option><option value="1.8rem">Muy grande</option>';
+        sel.value=b.tam||'';
+        sel.addEventListener('change',e=>{ b.tam=e.target.value; programarGuardado(); });
+        fila.append(lab,sel); box.append(fila);
+      }
+      return box;
+    }
     return t;
   }
   if(b.tipo==='separador'){ const d=document.createElement('div'); d.className='separador-vis'; return d; }
@@ -905,10 +920,12 @@ function cuerpoBloque(b){
     const u=input('campo campo-url',b.url,'Pega la URL de una imagen…');
     const prev=document.createElement('img'); prev.className='img-prev';
     const pie=input('campo img-pie',b.pie,'Pie de foto (opcional)');
+    const enlace=input('campo campo-url',b.enlace,'Enlace al hacer clic (opcional: https://…)');
     const refr=()=>{ prev.src=b.url; mostrar(prev,!!b.url); };
     u.addEventListener('input',e=>{ b.url=e.target.value; refr(); programarGuardado(); });
     pie.addEventListener('input',e=>{ b.pie=e.target.value; programarGuardado(); });
-    box.append(filaUrl(u),prev,pie); refr(); return box;
+    enlace.addEventListener('input',e=>{ b.enlace=e.target.value; programarGuardado(); });
+    box.append(filaUrl(u),prev,pie,etiqueta('Enlace (opcional)'),enlace); refr(); return box;
   }
 
   if(b.tipo==='hero'){
@@ -1328,6 +1345,11 @@ function palabrasHTML(texto){
   if(!t) return '';
   return t.split(/\s+/).map((w,i)=>`<span class="pal" style="transition-delay:${(i*0.06).toFixed(2)}s">${w}</span>`).join(' ');
 }
+  function enriquecer(texto){
+  let s=escapar(texto||'');
+  s=s.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+|mailto:[^\s)]+)\)/g, (m,txt,url)=>`<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline;">${txt}</a>`);
+  return s.replace(/\n/g,'<br>');
+}
 function construirHTML(rep){  let html='';
   (rep.bloques||[]).forEach(b=>{
     switch(b.tipo){
@@ -1345,9 +1367,12 @@ function construirHTML(rep){  let html='';
         </section>`; break; }
       case 'titulo':{ const sid='sec'+uid(); if((b.texto||'').trim()) indiceSecciones.push({id:sid,texto:b.texto}); html+=`<div class="L-cont" id="${sid}"><h1 class="palabras" style="font-size:2.4rem;line-height:1.1;margin:2.5rem 0 1rem;">${palabrasHTML(b.texto)}</h1></div>`; break; }
       case 'subtitulo':{ const sid='sec'+uid(); if((b.texto||'').trim()) indiceSecciones.push({id:sid,texto:b.texto}); html+=`<div class="L-cont" id="${sid}"><h4 class="rev" style="font-size:1.5rem;margin:1.8rem 0 .6rem;">${escapar(b.texto)}</h4></div>`; break; }
-      case 'parrafo':   html+=`<div class="L-cont"><p class="L-parrafo rev">${escapar(b.texto).replace(/\n/g,'<br>')}</p></div>`; break;
-      case 'cita':      html+=`<div class="L-cont"><blockquote class="L-cita rev">${escapar(b.texto)}</blockquote></div>`; break;
-      case 'imagen':    html+=`<figure class="L-cont L-img rev"><img src="${escapar(b.url)}" alt="">${b.pie?`<figcaption>${escapar(b.pie)}</figcaption>`:''}</figure>`; break;
+      case 'parrafo':   html+=`<div class="L-cont"><p class="L-parrafo rev"${b.tam?` style="font-size:${escapar(b.tam)}"`:''}>${enriquecer(b.texto)}</p></div>`; break;
+      case 'cita':      html+=`<div class="L-cont"><blockquote class="L-cita rev">${enriquecer(b.texto)}</blockquote></div>`; break;
+      case 'imagen':{
+        const img=`<img src="${escapar(b.url)}" alt="">`;
+        const cuerpo=b.enlace?`<a href="${escapar(b.enlace)}" target="_blank" rel="noopener noreferrer">${img}</a>`:img;
+        html+=`<figure class="L-cont L-img rev">${cuerpo}${b.pie?`<figcaption>${escapar(b.pie)}</figcaption>`:''}</figure>`; break; }
       case 'separador': html+=`<div class="L-sep rev"></div>`; break;
       case 'imagenFull':
         html+=`<section class="L-full pos-${b.posicion||'abajo'}">
@@ -1793,6 +1818,40 @@ function abrirPanelColab(){
   }
 }
 injectarBotonColab();
+
+  /* ===== INSERTAR (iframe embebible del reportaje) ===== */
+function injectarBotonEmbed(){
+  if($('btn-embed-rep')) return;
+  const cont=document.querySelector('.editor-opciones'); if(!cont) return;
+  const btn=document.createElement('button'); btn.id='btn-embed-rep'; btn.className='btn btn-fantasma btn-sm'; btn.textContent='</> Insertar';
+  btn.addEventListener('click', mostrarEmbed); cont.appendChild(btn);
+}
+async function mostrarEmbed(){
+  if(!reportajeActual) return;
+  if(cambiosPendientes) await guardar();
+  if(!reportajeActual.publicado){
+    try{ await updateDoc(doc(db,'reportajes',reportajeActual.id),{ publicado:true, updatedAt:serverTimestamp() }); reportajeActual.publicado=true; }
+    catch(e){ toast('Error al publicar: '+e.code); return; }
+  }
+  const url=location.origin+location.pathname+'?r='+reportajeActual.id;
+  const code=`<iframe src="${url}" width="100%" height="800" style="border:0;border-radius:12px;" allow="fullscreen; autoplay; encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe>`;
+  let modal=document.getElementById('modal-embed');
+  if(!modal){ modal=document.createElement('div'); modal.id='modal-embed'; modal.style.cssText='position:fixed;inset:0;z-index:130;display:grid;place-items:center;background:rgba(0,0,0,.45);padding:1rem;'; document.body.appendChild(modal); }
+  modal.innerHTML=`<div style="background:var(--papel);color:var(--tinta);max-width:560px;width:100%;border-radius:14px;padding:1.4rem;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+    <h3 style="font-family:'Fraunces',serif;font-size:1.3rem;margin-bottom:.3rem;">Insertar en otro sitio</h3>
+    <p style="font-size:.85rem;color:var(--tinta-60);margin-bottom:1rem;">Copia este código y pégalo en cualquier web que acepte HTML (WordPress, Notion, Google Sites, etc.).</p>
+    <textarea readonly class="campo campo-txt" style="width:100%;min-height:110px;font-family:ui-monospace,monospace;font-size:.78rem;">${code.replace(/</g,'&lt;')}</textarea>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1rem;gap:.5rem;">
+      <span style="font-size:.78rem;color:var(--tinta-60)">Ajusta el alto cambiando height="800".</span>
+      <div style="display:flex;gap:.5rem;"><button id="embed-copiar" class="btn btn-primario btn-sm">Copiar código</button><button id="embed-cerrar" class="btn btn-fantasma btn-sm">Cerrar</button></div>
+    </div>
+  </div>`;
+  modal.style.display='grid';
+  modal.onclick=e=>{ if(e.target===modal) modal.style.display='none'; };
+  document.getElementById('embed-cerrar').onclick=()=>{ modal.style.display='none'; };
+  document.getElementById('embed-copiar').onclick=async()=>{ try{ await navigator.clipboard.writeText(code); toast('Código copiado'); }catch(e){ const ta=modal.querySelector('textarea'); ta.select(); document.execCommand('copy'); toast('Código copiado'); } };
+}
+injectarBotonEmbed();
   
 window.addEventListener('beforeunload', e=>{ if(cambiosPendientes){ e.preventDefault(); e.returnValue=''; } });
 window.addEventListener('keydown', e=>{ if(e.key==='Escape' && !$('lector').classList.contains('oculto')) cerrarLector(); });
