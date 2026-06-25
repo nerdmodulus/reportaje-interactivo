@@ -1733,6 +1733,7 @@ function escucharEnVivo(id){
   unsubEnVivo=onSnapshot(doc(db,'reportajes',id), snap=>{
     if(!snap.exists() || snap.metadata.hasPendingWrites) return;
     if(!reportajeActual || reportajeActual.id!==id) return;
+    if(cambiosPendientes) return; // tengo cambios locales sin guardar: lo mío manda, ignoro el eco del servidor    
     const d=snap.data();
     if( d.titulo===reportajeActual.titulo && d.tema===reportajeActual.tema && !!d.glass===!!reportajeActual.glass
         && JSON.stringify(d.bloques||[])===JSON.stringify(reportajeActual.bloques||[])
